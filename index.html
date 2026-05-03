@@ -518,7 +518,7 @@
 
     </header>
 
-    <p class="instruction">¿Quién sos?</p>
+    <p class="instruction">JUGADORES</p>
 
     <!-- Grid jugadores -->
     <div class="profiles-grid" id="playersGrid">
@@ -689,6 +689,15 @@
       passInput.type = isPass ? 'text' : 'password';
       togglePass.textContent = isPass ? '🙈' : '👁';
     });
+
+    /* ─── SESIÓN ─── */
+    function guardarSesion(user) {
+      sessionStorage.setItem('prode_user',      user.id);
+      sessionStorage.setItem('prode_name',      user.nombre);
+      sessionStorage.setItem('prode_foto',      user.foto);
+      sessionStorage.setItem('prode_esMascota', user.esMascota);
+      sessionStorage.setItem('prode_esAdmin',   user.esAdmin);
+    }
 
     /* ─── LOGIN ─── */
     function doLogin() {
