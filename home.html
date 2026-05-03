@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRODE FAMILIAR 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="js/sheets.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --celeste:        #74ACDF;
+      --celeste-light:  #E8F4FD;
+      --celeste-mid:    #A8CFEE;
+      --celeste-dark:   #4A8BBF;
+      --azul-marino:    #1A3A5C;
+      --azul-noche:     #0D2137;
+      --azul-panel:     #112840;
+      --blanco:         #FFFFFF;
+      --verde:          #27AE60;
+      --verde-dark:     #1E8449;
+      --gris:           #5A6A7A;
+      --gris-light:     #8A9BAB;
+      --dorado:         #F1C40F;
+      --dorado-dark:    #B7950B;
+      --rojo:           #E74C3C;
+      --font-display:   'Bebas Neue', sans-serif;
+      --font-body:      'Nunito', sans-serif;
+    }
+
+    html, body { min-height: 100%; font-family: var(--font-body); overflow-x: hidden; }
+
+    /* ── BG ── */
+    body { background-color: var(--azul-noche); }
+
+    .bg-layer { position: fixed; inset: 0; background-image: url('assets/bg/fondo.png'); background-size: cover; background-position: center; z-index: 0; }
+    .bg-overlay { position: fixed; inset: 0; background: linear-gradient(160deg, rgba(13,33,55,0.80) 0%, rgba(13,33,55,0.55) 50%, rgba(13,33,55,0.80) 100%); z-index: 1; }
+    .bg-deco { position: fixed; inset: 0; background-image: url('assets/bg/decoracion.png'); background-size: cover; background-position: center; pointer-events: none; z-index: 2; opacity: 0.7; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(13, 33, 55, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(116,172,223,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem;
+      height: 60px;
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--blanco);
+      letter-spacing: 0.06em;
+      line-height: 1;
+    }
+
+    .nav-logo span { color: var(--celeste); }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .nav-user-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      color: var(--celeste-mid);
+      letter-spacing: 0.05em;
+    }
+
+    .nav-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--celeste);
+    }
+
+    .nav-avatar-fallback {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--azul-marino);
+      border: 2px solid var(--celeste);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1rem; color: var(--blanco);
+    }
+
+    .hamburger {
+      background: none; border: none; cursor: pointer;
+      display: flex; flex-direction: column; gap: 5px;
+      padding: 4px; border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .hamburger:hover { background: rgba(116,172,223,0.15); }
+    .hamburger span {
+      display: block; width: 24px; height: 2.5px;
+      background: var(--blanco); border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+    /* ── SIDE MENU ── */
+    .side-menu {
+      position: fixed;
+      top: 60px; right: 0;
+      width: 220px;
+      background: rgba(10, 25, 45, 0.97);
+      backdrop-filter: blur(16px);
+      border-left: 1px solid rgba(116,172,223,0.2);
+      border-bottom: 1px solid rgba(116,172,223,0.2);
+      border-radius: 0 0 0 16px;
+      z-index: 99;
+      padding: 0.5rem 0;
+      transform: translateX(110%);
+      transition: transform 0.35s cubic-bezier(.34,1.2,.64,1);
+    }
+    .side-menu.open { transform: translateX(0); }
+
+    .menu-item {
+      display: flex; align-items: center; gap: 0.85rem;
+      padding: 0.9rem 1.4rem;
+      color: var(--celeste-mid);
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .menu-item:hover, .menu-item.active {
+      background: rgba(116,172,223,0.12);
+      color: var(--blanco);
+    }
+    .menu-item .menu-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+
+    .menu-divider { height: 1px; background: rgba(116,172,223,0.15); margin: 0.25rem 0; }
+
+    .menu-logout {
+      display: flex; align-items: center; gap: 0.85rem;
+      padding: 0.9rem 1.4rem;
+      color: #E74C3C;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background 0.18s;
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .menu-logout:hover { background: rgba(231,76,60,0.1); }
+
+    /* ── PAGE WRAPPER ── */
+    .page {
+      position: relative; z-index: 10;
+      min-height: 100vh;
+      padding: 76px 1rem 5rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* ── SECTION VIEWS ── */
+    .view { display: none; animation: fadeUp 0.4s ease both; }
+    .view.active { display: block; }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      color: var(--blanco);
+      letter-spacing: 0.06em;
+      margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .section-title span { color: var(--celeste); }
+
+    /* ═══════════════════════════════
+       VISTA: INICIO (Fechas y Partidos)
+    ═══════════════════════════════ */
+
+    /* Accordion de Fecha */
+    .fecha-block {
+      margin-bottom: 1rem;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(116,172,223,0.2);
+    }
+
+    .fecha-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.25rem;
+      background: rgba(26, 58, 92, 0.85);
+      cursor: pointer;
+      transition: background 0.2s;
+      border: none; width: 100%; text-align: left;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .fecha-header:hover { background: rgba(26, 58, 92, 1); }
+
+    .fecha-header-left { display: flex; align-items: center; gap: 0.75rem; }
+
+    .fecha-label {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--blanco);
+      letter-spacing: 0.06em;
+    }
+
+    .fecha-badge {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.65rem;
+      border-radius: 100px;
+      background: rgba(116,172,223,0.2);
+      color: var(--celeste-mid);
+    }
+
+    .fecha-badge.comodin-used {
+      background: rgba(241,196,15,0.2);
+      color: var(--dorado);
+    }
+
+    .fecha-arrow {
+      font-size: 1.1rem;
+      color: var(--celeste-mid);
+      transition: transform 0.3s;
+    }
+    .fecha-header.open .fecha-arrow { transform: rotate(180deg); }
+
+    .fecha-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(13, 33, 55, 0.6);
+    }
+    .fecha-body.open { max-height: 3000px; }
+
+    .fecha-body-inner { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; }
+
+    /* ── CARDS DE PARTIDO ── */
+    .match-card {
+      display: flex; align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      transition: transform 0.18s, border-color 0.18s, background 0.18s;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Estados */
+    .match-card.pending {
+      background: rgba(74, 139, 191, 0.18);
+      border-color: rgba(116,172,223,0.35);
+    }
+    .match-card.pending:hover {
+      transform: translateY(-2px);
+      border-color: var(--celeste);
+      background: rgba(74, 139, 191, 0.28);
+    }
+
+    .match-card.predicted {
+      background: rgba(39, 174, 96, 0.18);
+      border-color: rgba(39,174,96,0.4);
+      cursor: default;
+    }
+
+    .match-card.finished {
+      background: rgba(90, 106, 122, 0.2);
+      border-color: rgba(90,106,122,0.3);
+      cursor: default;
+    }
+
+    .match-card.locked {
+      background: rgba(90, 106, 122, 0.15);
+      border-color: rgba(90,106,122,0.25);
+      cursor: not-allowed;
+      opacity: 0.75;
+    }
+
+    /* Banderas */
+    .match-flags { display: flex; align-items: center; gap: 0.4rem; flex: 1; }
+
+    .flag-block {
+      display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+      min-width: 0;
+    }
+
+    .flag-img {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.15);
+    }
+
+    .flag-fallback {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--azul-marino);
+      border: 2px solid rgba(116,172,223,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 800; color: var(--celeste-mid);
+      text-align: center; line-height: 1.1;
+    }
+
+    .flag-name {
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--blanco);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-align: center;
+      max-width: 42px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .flag-emoji {
+      font-size: 1.8rem;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .match-vs {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--celeste-mid);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    /* Info central */
+    .match-info {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; gap: 0.1rem;
+      min-width: 0;
+    }
+
+    .match-datetime {
+      font-size: 0.7rem;
+      color: var(--celeste-mid);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+
+    .match-status-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 0.15rem 0.5rem;
+      border-radius: 100px;
+      margin-top: 0.15rem;
+    }
+
+    .match-card.pending   .match-status-label { background: rgba(116,172,223,0.2); color: var(--celeste); }
+    .match-card.predicted .match-status-label { background: rgba(39,174,96,0.2);   color: var(--verde); }
+    .match-card.finished  .match-status-label { background: rgba(90,106,122,0.3);  color: var(--gris-light); }
+    .match-card.locked    .match-status-label { background: rgba(90,106,122,0.25); color: var(--gris-light); }
+
+    /* Resultado en card */
+    .match-result {
+      display: flex; flex-direction: column; gap: 0.15rem;
+      align-items: center;
+    }
+
+    .result-real {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--blanco);
+      letter-spacing: 0.06em;
+    }
+
+    .result-pred {
+      font-size: 0.65rem;
+      color: var(--celeste-mid);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    /* Estrella comodín */
+    .comodin-star {
+      position: absolute;
+      top: -8px; right: -8px;
+      width: 22px; height: 22px;
+      background: var(--azul-noche);
+      border: 2px solid var(--dorado);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      color: var(--dorado);
+    }
+
+    /* ═══════════════════════════════
+       MODAL DE PREDICCIÓN
+    ═══════════════════════════════ */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(13,33,55,0.88);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .pred-modal {
+      background: var(--azul-marino);
+      border: 1.5px solid rgba(116,172,223,0.35);
+      border-radius: 20px;
+      padding: 2rem 1.5rem 1.75rem;
+      width: 100%; max-width: 400px;
+      transform: scale(0.92) translateY(20px);
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+      position: relative;
+    }
+    .modal-overlay.active .pred-modal { transform: scale(1) translateY(0); }
+
+    .pred-modal-close {
+      position: absolute; top: 1rem; right: 1.1rem;
+      background: none; border: none;
+      color: var(--celeste-mid); font-size: 1.5rem;
+      cursor: pointer; line-height: 1;
+    }
+    .pred-modal-close:hover { color: var(--blanco); }
+
+    .pred-modal-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--celeste-mid);
+      letter-spacing: 0.08em;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Equipos en modal */
+    .pred-teams {
+      display: flex; align-items: center; justify-content: center;
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+
+    .pred-team {
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      flex: 1;
+    }
+
+    .pred-flag {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(116,172,223,0.4);
+    }
+
+    .pred-flag-fallback {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--azul-noche);
+      border: 3px solid rgba(116,172,223,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 900;
+      color: var(--celeste-mid); text-align: center; letter-spacing: 0.03em;
+    }
+
+    .pred-team-name {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--blanco);
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+
+    .pred-vs {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--celeste);
+      letter-spacing: 0.06em;
+      flex-shrink: 0;
+    }
+
+    /* Inputs de goles */
+    .pred-scores {
+      display: flex; align-items: center; justify-content: center;
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+
+    .score-control {
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      flex: 1;
+    }
+
+    .score-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--celeste-mid);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .score-input-row {
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .score-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(116,172,223,0.15);
+      border: 1.5px solid rgba(116,172,223,0.35);
+      color: var(--blanco);
+      font-size: 1.3rem; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.18s, transform 0.1s;
+      line-height: 1;
+      padding-bottom: 2px;
+    }
+    .score-btn:hover { background: rgba(116,172,223,0.3); }
+    .score-btn:active { transform: scale(0.9); }
+
+    .score-display {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      color: var(--blanco);
+      letter-spacing: 0.05em;
+      min-width: 2ch;
+      text-align: center;
+    }
+
+    .pred-separator { font-family: var(--font-display); font-size: 2rem; color: var(--celeste-mid); }
+
+    /* Comodín checkbox */
+    .comodin-row {
+      display: flex; align-items: center; gap: 0.85rem;
+      padding: 0.85rem 1rem;
+      background: rgba(241,196,15,0.08);
+      border: 1.5px solid rgba(241,196,15,0.25);
+      border-radius: 10px;
+      margin-bottom: 1.25rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .comodin-row:hover { background: rgba(241,196,15,0.14); }
+    .comodin-row.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .comodin-check {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      border: 2px solid var(--dorado);
+      background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .comodin-check.checked { background: var(--dorado); }
+    .comodin-check.checked::after { content: '✓'; font-size: 0.85rem; font-weight: 900; color: var(--azul-noche); }
+
+    .comodin-text { flex: 1; }
+    .comodin-text strong { display: block; font-size: 0.9rem; font-weight: 800; color: var(--dorado); }
+    .comodin-text small { font-size: 0.72rem; color: rgba(241,196,15,0.7); font-weight: 600; }
+
+    /* Botón confirmar */
+    .pred-confirm-btn {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--celeste);
+      color: var(--azul-noche);
+      border: none; border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .pred-confirm-btn:hover { background: var(--celeste-mid); }
+    .pred-confirm-btn:active { transform: scale(0.97); }
+
+    /* ── MODAL ÉXITO ── */
+    .success-modal {
+      background: var(--azul-marino);
+      border: 1.5px solid rgba(39,174,96,0.4);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      width: 100%; max-width: 340px;
+      text-align: center;
+      transform: scale(0.92) translateY(20px);
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+      position: relative;
+    }
+    .modal-overlay.active .success-modal { transform: scale(1) translateY(0); }
+
+    .success-icon { font-size: 3.5rem; margin-bottom: 1rem; display: block; }
+    .success-title { font-family: var(--font-display); font-size: 2rem; color: var(--verde); letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .success-sub { font-size: 0.9rem; color: var(--celeste-mid); font-weight: 600; }
+    .success-close-btn {
+      margin-top: 1.5rem;
+      padding: 0.75rem 2rem;
+      background: var(--verde);
+      color: var(--blanco);
+      border: none; border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .success-close-btn:hover { background: var(--verde-dark); }
+
+    /* ═══════════════════════════════
+       VISTA: PODIO
+    ═══════════════════════════════ */
+    .podium-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    /* Las 3 columnas del podio */
+    .podium-stage {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 0.4rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .podium-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .podium-avatar-wrap { position: relative; }
+
+    .podium-avatar {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .podium-avatar-fallback {
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: var(--azul-marino);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.5rem; color: var(--blanco);
+    }
+
+    .podium-pos-badge {
+      position: absolute;
+      top: -8px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      padding: 0.1rem 0.5rem;
+      border-radius: 100px;
+      letter-spacing: 0.06em;
+    }
+
+    .podium-col.first .podium-avatar { width: 80px; height: 80px; border: 3px solid var(--dorado); }
+    .podium-col.first .podium-avatar-fallback { width: 80px; height: 80px; border: 3px solid var(--dorado); }
+    .podium-col.first .podium-pos-badge { background: var(--dorado); color: var(--azul-noche); }
+
+    .podium-col.second .podium-avatar { border: 3px solid #C0C0C0; }
+    .podium-col.second .podium-avatar-fallback { border: 3px solid #C0C0C0; }
+    .podium-col.second .podium-pos-badge { background: #C0C0C0; color: var(--azul-noche); }
+
+    .podium-col.third .podium-avatar { border: 3px solid #CD7F32; }
+    .podium-col.third .podium-avatar-fallback { border: 3px solid #CD7F32; }
+    .podium-col.third .podium-pos-badge { background: #CD7F32; color: var(--blanco); }
+
+    .podium-p-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--blanco);
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+
+    .podium-p-score {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--celeste);
+      letter-spacing: 0.06em;
+    }
+
+    /* Gradas del podio */
+    .podium-steps {
+      display: flex;
+      align-items: flex-end;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 0 0 12px 12px;
+      overflow: hidden;
+    }
+
+    .podium-step {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: 0.06em;
+    }
+    .podium-step.second { height: 64px; background: linear-gradient(180deg, #888 0%, #555 100%); color: #ddd; }
+    .podium-step.first  { height: 90px; background: linear-gradient(180deg, var(--dorado) 0%, var(--dorado-dark) 100%); color: var(--azul-noche); }
+    .podium-step.third  { height: 46px; background: linear-gradient(180deg, #A0693B 0%, #7A4E2A 100%); color: #f0d0b0; }
+
+    /* Lista resto de jugadores */
+    .ranking-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .ranking-item {
+      display: flex; align-items: center; gap: 0.9rem;
+      padding: 0.85rem 1rem;
+      background: rgba(26,58,92,0.6);
+      border-radius: 12px;
+      border: 1px solid rgba(116,172,223,0.15);
+    }
+
+    .ranking-pos {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--celeste-mid);
+      letter-spacing: 0.05em;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .ranking-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%; object-fit: cover;
+      border: 2px solid rgba(116,172,223,0.35);
+    }
+
+    .ranking-avatar-fallback {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--azul-marino);
+      border: 2px solid rgba(116,172,223,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.1rem; color: var(--blanco);
+    }
+
+    .ranking-name {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--blanco);
+      letter-spacing: 0.05em;
+      flex: 1;
+    }
+
+    .ranking-score {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--celeste);
+      letter-spacing: 0.06em;
+    }
+
+    .ranking-pts-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--gris-light);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ═══════════════════════════════
+       VISTA: MI PUNTAJE
+    ═══════════════════════════════ */
+    .my-score-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.5rem;
+      background: rgba(26,58,92,0.8);
+      border-radius: 16px;
+      border: 1px solid rgba(116,172,223,0.25);
+      margin-bottom: 1.5rem;
+    }
+
+    .my-score-avatar {
+      width: 64px; height: 64px;
+      border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--celeste);
+    }
+
+    .my-score-info { flex: 1; }
+
+    .my-score-name {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--blanco);
+      letter-spacing: 0.06em;
+    }
+
+    .my-score-pos {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--celeste-mid);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .my-score-total {
+      text-align: right;
+    }
+
+    .my-score-pts {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      color: var(--celeste);
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    .my-score-pts-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--gris-light);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: rgba(26,58,92,0.6);
+      border: 1px solid rgba(116,172,223,0.18);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      color: var(--blanco);
+      letter-spacing: 0.05em;
+    }
+
+    .stat-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: var(--celeste-mid);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+    }
+
+    /* ═══════════════════════════════
+       VISTA: REGLAS
+    ═══════════════════════════════ */
+    .rules-block {
+      background: rgba(26,58,92,0.6);
+      border: 1px solid rgba(116,172,223,0.2);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .rules-block-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--celeste);
+      letter-spacing: 0.06em;
+      margin-bottom: 0.75rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .rules-block p, .rules-block li {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.8);
+      font-weight: 600;
+      line-height: 1.65;
+    }
+
+    .rules-block ul { padding-left: 1.25rem; }
+    .rules-block li { margin-bottom: 0.3rem; }
+
+    .score-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+
+    .score-table th {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--celeste-mid);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(116,172,223,0.2);
+    }
+
+    .score-table td {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid rgba(116,172,223,0.08);
+    }
+
+    .score-table td:last-child {
+      color: var(--dorado);
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* ═══════════════════════════════
+       VISTA: ADMIN
+    ═══════════════════════════════ */
+    .admin-partido-card {
+      background: rgba(26,58,92,0.7);
+      border: 1px solid rgba(116,172,223,0.2);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .admin-partido-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .admin-partido-teams {
+      flex: 1;
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--blanco);
+      letter-spacing: 0.04em;
+    }
+
+    .admin-partido-date {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--celeste-mid);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .admin-result-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .admin-result-input {
+      width: 60px;
+      padding: 0.5rem;
+      background: rgba(13,33,55,0.8);
+      border: 1.5px solid rgba(116,172,223,0.35);
+      border-radius: 8px;
+      color: var(--blanco);
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .admin-result-input:focus { border-color: var(--celeste); }
+
+    .admin-sep {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--celeste-mid);
+    }
+
+    .admin-save-btn {
+      margin-left: auto;
+      padding: 0.5rem 1.1rem;
+      background: var(--verde);
+      color: var(--blanco);
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+
+    .admin-save-btn:hover { background: var(--verde-dark); }
+    .admin-save-btn:active { transform: scale(0.96); }
+    .admin-save-btn:disabled { background: var(--gris); cursor: not-allowed; }
+
+    .admin-done-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.85rem;
+      background: rgba(39,174,96,0.15);
+      border: 1px solid rgba(39,174,96,0.35);
+      border-radius: 100px;
+      color: var(--verde);
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    .admin-fase-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--celeste);
+      letter-spacing: 0.08em;
+      margin: 1.25rem 0 0.6rem;
+    }
+
+    /* ── ANIMACIONES ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .podium-col.first .podium-avatar,
+      .podium-col.first .podium-avatar-fallback { width: 68px; height: 68px; }
+      .podium-avatar, .podium-avatar-fallback { width: 58px; height: 58px; }
+      .podium-step.second { height: 52px; }
+      .podium-step.first  { height: 74px; }
+      .podium-step.third  { height: 38px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-layer"></div>
+  <div class="bg-overlay"></div>
+  <div class="bg-deco"></div>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <div class="nav-logo">PRODE <span>2026</span></div>
+
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <div class="nav-user">
+        <span class="nav-user-name" id="navUserName"></span>
+        <div id="navAvatarWrap"></div>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── SIDE MENU ── -->
+  <nav class="side-menu" id="sideMenu" aria-label="Menú principal">
+    <button class="menu-item active" id="menuInicio" data-view="inicio">
+      <span class="menu-icon">🏠</span> Inicio
+    </button>
+    <button class="menu-item" id="menuPodio" data-view="podio">
+      <span class="menu-icon">🏆</span> Podio
+    </button>
+    <button class="menu-item" id="menuScore" data-view="mipuntaje">
+      <span class="menu-icon">📊</span> Mi puntaje
+    </button>
+    <button class="menu-item" id="menuReglas" data-view="reglas">
+      <span class="menu-icon">📋</span> Reglas
+    </button>
+    <button class="menu-item" id="menuAdmin" data-view="admin" id="menuAdminBtn" style="display:none;">
+      <span class="menu-icon">⚙️</span> Admin
+    </button>
+    <div class="menu-divider"></div>
+    <button class="menu-logout" id="menuLogout">
+      <span class="menu-icon">🚪</span> Salir
+    </button>
+  </nav>
+
+  <!-- ── CONTENIDO ── -->
+  <div class="page">
+
+    <!-- VISTA: INICIO -->
+    <div class="view active" id="viewInicio">
+      <h2 class="section-title">⚽ <span>Partidos</span></h2>
+      <div id="fechasContainer">
+        <!-- generado por JS -->
+      </div>
+    </div>
+
+    <!-- VISTA: PODIO -->
+    <div class="view" id="viewPodio">
+      <h2 class="section-title">🏆 <span>Podio</span></h2>
+      <div class="podium-wrap" id="podiumWrap">
+        <!-- generado por JS -->
+      </div>
+    </div>
+
+    <!-- VISTA: MI PUNTAJE -->
+    <div class="view" id="viewMiPuntaje">
+      <h2 class="section-title">📊 Mi <span>Puntaje</span></h2>
+      <div id="myScoreWrap">
+        <!-- generado por JS -->
+      </div>
+    </div>
+
+    <!-- VISTA: REGLAS -->
+    <div class="view" id="viewReglas">
+      <h2 class="section-title">📋 <span>Reglas</span></h2>
+
+      <div class="rules-block">
+        <p class="rules-block-title">⏰ ¿Hasta cuándo puedo enviar mi predicción?</p>
+        <p>Podés enviar o modificar tu predicción hasta el <strong>inicio del partido</strong>. Una vez que el partido comenzó, el sistema bloquea automáticamente ese partido y ya no se admiten predicciones. La predicción es definitiva una vez enviada.</p>
+      </div>
+
+      <div class="rules-block">
+        <p class="rules-block-title">🌟 El Comodín</p>
+        <ul>
+          <li>Cada jugador tiene <strong>un comodín por Fecha/Instancia</strong> (Fecha 1, Fecha 2, Fecha 3, Octavos, Cuartos, Semi y Final).</li>
+          <li>El comodín se aplica a un partido específico dentro de esa instancia.</li>
+          <li>Si usás el comodín, el puntaje que obtengas en ese partido se <strong>duplica</strong>.</li>
+          <li>Si usaste el comodín pero no acertaste nada, no sumás puntos extra.</li>
+          <li>¡Usalo con inteligencia! Una vez enviado, no puede cambiarse.</li>
+        </ul>
+      </div>
+
+      <div class="rules-block">
+        <p class="rules-block-title">🎯 Tabla de puntuación</p>
+        <table class="score-table">
+          <thead>
+            <tr>
+              <th>Situación</th>
+              <th>Puntos</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Resultado exacto (único acertado)</td><td>6 pts</td></tr>
+            <tr><td>Resultado exacto (entre 2 jugadores)</td><td>4 pts</td></tr>
+            <tr><td>Resultado exacto (3 o más jugadores)</td><td>3 pts</td></tr>
+            <tr><td>Solo ganador o empate correcto</td><td>1 pt</td></tr>
+            <tr><td>Bonus: resultado con 5 goles o más</td><td>+2 pts</td></tr>
+            <tr><td>Comodín aplicado</td><td>× 2</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="rules-block">
+        <p class="rules-block-title">🐾 Mascotas</p>
+        <p>Felipe y Mara también participan. Sus predicciones pueden ser cargadas por cualquier miembro de la familia (o por una IA 🤖). ¡Que gane el mejor!</p>
+      </div>
+    </div>
+
+    <!-- VISTA: ADMIN -->
+    <div class="view" id="viewAdmin">
+      <h2 class="section-title">⚙️ <span>Panel Admin</span></h2>
+      <div id="adminPartidosWrap">
+        <!-- generado por JS -->
+      </div>
+    </div>
+
+  </div><!-- /page -->
+
+  <!-- ── MODAL: PREDICCIÓN ── -->
+  <div class="modal-overlay" id="predModalOverlay" role="dialog" aria-modal="true">
+    <div class="pred-modal" id="predModal">
+      <button class="pred-modal-close" id="predModalClose">&times;</button>
+      <p class="pred-modal-title" id="predModalTitle">HACER PREDICCIÓN</p>
+
+      <div class="pred-teams" id="predTeams"></div>
+
+      <div class="pred-scores">
+        <div class="score-control">
+          <span class="score-label" id="scoreLabel_a">LOCAL</span>
+          <div class="score-input-row">
+            <button class="score-btn" id="btnMinus_a">−</button>
+            <span class="score-display" id="scoreVal_a">0</span>
+            <button class="score-btn" id="btnPlus_a">+</button>
+          </div>
+        </div>
+        <div class="pred-separator">:</div>
+        <div class="score-control">
+          <span class="score-label" id="scoreLabel_b">VISITA</span>
+          <div class="score-input-row">
+            <button class="score-btn" id="btnMinus_b">−</button>
+            <span class="score-display" id="scoreVal_b">0</span>
+            <button class="score-btn" id="btnPlus_b">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="comodin-row" id="comodinRow">
+        <div class="comodin-check" id="comodinCheck"></div>
+        <div class="comodin-text">
+          <strong>⭐ Usar Comodín</strong>
+          <small id="comodinSubtext">Duplica el puntaje de este partido</small>
+        </div>
+      </div>
+
+      <button class="pred-confirm-btn" id="predConfirmBtn">CONFIRMAR PREDICCIÓN</button>
+    </div>
+  </div>
+
+  <!-- ── MODAL: ÉXITO ── -->
+  <div class="modal-overlay" id="successModalOverlay" role="dialog" aria-modal="true">
+    <div class="success-modal">
+      <button class="pred-modal-close" id="successClose">&times;</button>
+      <span class="success-icon">🎉</span>
+      <p class="success-title">¡PREDICCIÓN REALIZADA!</p>
+      <p class="success-sub">Tu predicción fue guardada correctamente. ¡Buena suerte!</p>
+      <button class="success-close-btn" id="successCloseBtn">CONTINUAR</button>
+    </div>
+  </div>
+
+  <script>
+    /* ═══════════════════════════════════════════════════
+       ESTADO GLOBAL
+    ═══════════════════════════════════════════════════ */
+    let CURRENT_USER   = null;
+    let PARTIDOS       = [];
+    let PREDICCIONES   = {};   // { partidoId: { golesA, golesB, comodin } }
+    let COMODINES_USADOS = []; // array de fase_id donde ya usó comodín
+    let PLAYERS_DATA   = [];
+    let LOADING        = false;
+
+    // Labels visuales por fase
+    const FASE_LABELS = {
+      FECHA1:  'Fecha 1 — Fase de Grupos',
+      FECHA2:  'Fecha 2 — Fase de Grupos',
+      FECHA3:  'Fecha 3 — Fase de Grupos',
+      '16AVOS': '16avos de Final',
+      OCTAVOS: 'Octavos de Final',
+      CUARTOS: 'Cuartos de Final',
+      SEMIS:   'Semifinales',
+      TERCERO: 'Tercer Puesto',
+      FINAL:   'Gran Final',
+    };
+
+    /* ═══════════════════════════════════════════════════
+       INIT
+    ═══════════════════════════════════════════════════ */
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Verificar sesión
+      CURRENT_USER = getSesion();
+      if (!CURRENT_USER) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Navbar
+      document.getElementById('navUserName').textContent = CURRENT_USER.nombre;
+      const navWrap = document.getElementById('navAvatarWrap');
+      navWrap.innerHTML = `
+        <img class="nav-avatar" src="assets/profiles/${CURRENT_USER.foto}.png" alt="${CURRENT_USER.nombre}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="nav-avatar-fallback" style="display:none;">${CURRENT_USER.nombre.slice(0,2)}</div>
+      `;
+
+      // Mostrar loader
+      showLoader('fechasContainer', 'Cargando partidos...');
+      showLoader('podiumWrap', 'Cargando podio...');
+      showLoader('myScoreWrap', 'Cargando puntaje...');
+
+      try {
+        // Cargar datos en paralelo
+        const [resPartidos, resPreds, resPuntajes] = await Promise.all([
+          apiGetPartidos(),
+          apiGetPredicciones(CURRENT_USER.id),
+          apiGetPuntajes(),
+        ]);
+
+        if (resPartidos.ok) {
+          PARTIDOS = resPartidos.partidos;
+        }
+
+        if (resPreds.ok) {
+          resPreds.predicciones.forEach(p => {
+            PREDICCIONES[p.partidoId] = p;
+          });
+          COMODINES_USADOS = resPreds.comodines.map(c => c.faseId);
+        }
+
+        if (resPuntajes.ok) {
+          PLAYERS_DATA = [...resPuntajes.humanos, ...resPuntajes.mascotas];
+        }
+
+        // Renderizar vistas
+        buildFechas();
+        buildPodium(resPuntajes.ok ? resPuntajes : null);
+        buildMyScore(resPuntajes.ok ? resPuntajes : null);
+        if (CURRENT_USER.esAdmin) buildAdmin();
+
+      } catch(err) {
+        showError('fechasContainer', 'Error al cargar datos. Revisá tu conexión.');
+        console.error(err);
+      }
+    });
+
+    /* ═══════════════════════════════════════════════════
+       HELPERS DE UI
+    ═══════════════════════════════════════════════════ */
+    function showLoader(containerId, msg) {
+      const el = document.getElementById(containerId);
+      if (el) el.innerHTML = `
+        <div style="text-align:center;padding:2rem;color:var(--celeste-mid);font-weight:700;font-size:0.9rem;letter-spacing:.08em;">
+          <div style="font-size:1.5rem;margin-bottom:.5rem;">⏳</div>${msg}
+        </div>`;
+    }
+
+    function showError(containerId, msg) {
+      const el = document.getElementById(containerId);
+      if (el) el.innerHTML = `
+        <div style="text-align:center;padding:2rem;color:#E74C3C;font-weight:700;font-size:0.9rem;">
+          <div style="font-size:1.5rem;margin-bottom:.5rem;">⚠️</div>${msg}
+        </div>`;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       AVATAR HELPER
+    ═══════════════════════════════════════════════════ */
+    function renderAvatar(containerId, player, imgClass, fbClass, size) {
+      const wrap = document.getElementById(containerId);
+      if (!wrap) return;
+      const initials = player.name.slice(0, 2);
+      wrap.innerHTML = `
+        <img class="${imgClass}" src="${player.photo}" alt="${player.name}" width="${size}" height="${size}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="${fbClass}" style="display:none;">${initials}</div>
+      `;
+    }
+
+    function avatarHTML(player, imgClass, fbClass, size) {
+      const initials = player.name.slice(0, 2);
+      return `
+        <img class="${imgClass}" src="${player.photo}" alt="${player.name}" width="${size}" height="${size}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="${fbClass}" style="display:none;">${initials}</div>
+      `;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       HAMBURGER MENU
+    ═══════════════════════════════════════════════════ */
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sideMenu  = document.getElementById('sideMenu');
+
+    hamburger.addEventListener('click', () => {
+      const isOpen = sideMenu.classList.toggle('open');
+      hamburger.classList.toggle('open', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+    });
+
+    document.addEventListener('click', e => {
+      if (!sideMenu.contains(e.target) && !hamburger.contains(e.target)) {
+        sideMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', false);
+      }
+    });
+
+    // Navegación por menú
+    const views = {
+      inicio:    document.getElementById('viewInicio'),
+      podio:     document.getElementById('viewPodio'),
+      mipuntaje: document.getElementById('viewMiPuntaje'),
+      reglas:    document.getElementById('viewReglas'),
+      admin:     document.getElementById('viewAdmin'),
+    };
+
+    // Mostrar menú admin si corresponde
+    if (CURRENT_USER && CURRENT_USER.esAdmin) {
+      const adminBtn = document.getElementById('menuAdmin');
+      if (adminBtn) adminBtn.style.display = 'flex';
+    }
+
+    document.querySelectorAll('.menu-item[data-view]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.view;
+        Object.entries(views).forEach(([key, el]) => {
+          el.classList.toggle('active', key === target);
+        });
+        document.querySelectorAll('.menu-item[data-view]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        sideMenu.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    document.getElementById('menuLogout').addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = 'index.html';
+    });
+
+    /* ═══════════════════════════════════════════════════
+       VISTA: INICIO — Fechas y Partidos
+    ═══════════════════════════════════════════════════ */
+    function buildFechas() {
+      const container = document.getElementById('fechasContainer');
+      container.innerHTML = '';
+
+      if (!PARTIDOS.length) {
+        showError('fechasContainer', 'No hay partidos cargados todavía.');
+        return;
+      }
+
+      // Agrupar partidos por fecha_id manteniendo orden
+      const fases = [];
+      const fasesMap = {};
+      PARTIDOS.forEach(p => {
+        if (!fasesMap[p.fechaId]) {
+          fasesMap[p.fechaId] = [];
+          fases.push(p.fechaId);
+        }
+        fasesMap[p.fechaId].push(p);
+      });
+
+      // Filtrar fases que tienen al menos un partido con equipos definidos
+      const fasesVisibles = fases.filter(faseId => {
+        return fasesMap[faseId].some(p => p.equipoA !== 'TBD');
+      });
+
+      fasesVisibles.forEach((faseId, fi) => {
+        const partidos = fasesMap[faseId];
+        const comodinUsado = COMODINES_USADOS.includes(faseId);
+        const label = FASE_LABELS[faseId] || faseId;
+
+        const block = document.createElement('div');
+        block.className = 'fecha-block';
+
+        const header = document.createElement('button');
+        header.className = 'fecha-header' + (fi === 0 ? ' open' : '');
+        header.setAttribute('aria-expanded', fi === 0 ? 'true' : 'false');
+        header.innerHTML = `
+          <div class="fecha-header-left">
+            <span class="fecha-label">${label}</span>
+            ${comodinUsado
+              ? '<span class="fecha-badge comodin-used">⭐ Comodín usado</span>'
+              : '<span class="fecha-badge">Comodín disponible</span>'
+            }
+          </div>
+          <span class="fecha-arrow">▼</span>
+        `;
+
+        const body = document.createElement('div');
+        body.className = 'fecha-body' + (fi === 0 ? ' open' : '');
+
+        const inner = document.createElement('div');
+        inner.className = 'fecha-body-inner';
+
+        partidos.forEach(partido => {
+          const pred = PREDICCIONES[partido.id] || null;
+          inner.appendChild(buildMatchCard(partido, pred, faseId, comodinUsado));
+        });
+
+        body.appendChild(inner);
+
+        header.addEventListener('click', () => {
+          const isOpen = body.classList.toggle('open');
+          header.classList.toggle('open', isOpen);
+          header.setAttribute('aria-expanded', isOpen);
+        });
+
+        block.appendChild(header);
+        block.appendChild(body);
+        container.appendChild(block);
+      });
+    }
+
+    function buildMatchCard(partido, pred, faseId, comodinUsado) {
+      const card = document.createElement('div');
+      const hasComodin = pred && pred.comodin;
+
+      // Determinar estado visual
+      let estadoVisual;
+      if (partido.estado === 'finalizado') {
+        estadoVisual = 'finished';
+      } else if (pred) {
+        estadoVisual = 'predicted';
+      } else if (partido.bloqueado) {
+        estadoVisual = 'locked';
+      } else {
+        estadoVisual = 'pending';
+      }
+
+      card.className = `match-card ${estadoVisual}`;
+
+      let statusLabel = '';
+      let resultHTML  = '';
+
+      switch (estadoVisual) {
+        case 'pending':
+          statusLabel = 'Predecir';
+          break;
+        case 'predicted':
+          statusLabel = `Mi pred: ${pred.golesA} - ${pred.golesB}`;
+          break;
+        case 'finished':
+          statusLabel = 'Finalizado';
+          resultHTML = `
+            <div class="match-result">
+              <span class="result-real">${partido.golesA} - ${partido.golesB}</span>
+              ${pred
+                ? `<span class="result-pred">Tu pred: ${pred.golesA}-${pred.golesB}</span>`
+                : '<span class="result-pred">Sin predicción</span>'
+              }
+            </div>`;
+          break;
+        case 'locked':
+          statusLabel = 'Sin predicción';
+          break;
+      }
+
+      card.innerHTML = `
+        ${hasComodin ? '<div class="comodin-star">⭐</div>' : ''}
+        <div class="match-flags">
+          <div class="flag-block">
+            <div class="flag-emoji">${partido.flagA || '🏳️'}</div>
+            <span class="flag-name">${partido.equipoA}</span>
+          </div>
+          <span class="match-vs">VS</span>
+          <div class="flag-block">
+            <div class="flag-emoji">${partido.flagB || '🏳️'}</div>
+            <span class="flag-name">${partido.equipoB}</span>
+          </div>
+        </div>
+        <div class="match-info">
+          <span class="match-datetime">${partido.fechaJuego} · ${partido.horaArg} hs</span>
+          <span class="match-status-label">${statusLabel}</span>
+        </div>
+        ${resultHTML}
+      `;
+
+      if (estadoVisual === 'pending') {
+        card.addEventListener('click', () => openPredModal(partido, faseId, comodinUsado));
+      }
+
+      return card;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       MODAL DE PREDICCIÓN
+    ═══════════════════════════════════════════════════ */
+    let scoreA = 0, scoreB = 0, comodinActive = false;
+    let currentPartido = null, currentFechaId = null;
+
+    const predOverlay   = document.getElementById('predModalOverlay');
+    const predClose     = document.getElementById('predModalClose');
+    const predConfirm   = document.getElementById('predConfirmBtn');
+    const comodinRow    = document.getElementById('comodinRow');
+    const comodinCheck  = document.getElementById('comodinCheck');
+    const comodinSub    = document.getElementById('comodinSubtext');
+    const scoreValA     = document.getElementById('scoreVal_a');
+    const scoreValB     = document.getElementById('scoreVal_b');
+
+    function openPredModal(partido, faseId, comodinUsado) {
+      currentPartido = partido;
+      currentFaseId  = faseId;
+      scoreA = 0; scoreB = 0; comodinActive = false;
+
+      scoreValA.textContent = '0';
+      scoreValB.textContent = '0';
+      comodinCheck.classList.remove('checked');
+
+      document.getElementById('scoreLabel_a').textContent = partido.equipoA.toUpperCase();
+      document.getElementById('scoreLabel_b').textContent = partido.equipoB.toUpperCase();
+
+      document.getElementById('predTeams').innerHTML = `
+        <div class="pred-team">
+          <div style="font-size:3.5rem;line-height:1;">${partido.flagA || '🏳️'}</div>
+          <span class="pred-team-name">${partido.equipoA}</span>
+        </div>
+        <span class="pred-vs">VS</span>
+        <div class="pred-team">
+          <div style="font-size:3.5rem;line-height:1;">${partido.flagB || '🏳️'}</div>
+          <span class="pred-team-name">${partido.equipoB}</span>
+        </div>
+      `;
+
+      if (comodinUsado) {
+        comodinRow.classList.add('disabled');
+        comodinSub.textContent = 'Ya usaste el comodín en esta fecha';
+      } else {
+        comodinRow.classList.remove('disabled');
+        comodinSub.textContent = 'Duplica el puntaje de este partido';
+      }
+
+      predOverlay.classList.add('active');
+    }
+
+    function closePredModal() {
+      predOverlay.classList.remove('active');
+      currentPartido = null;
+    }
+
+    predClose.addEventListener('click', closePredModal);
+    predOverlay.addEventListener('click', e => { if (e.target === predOverlay) closePredModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closePredModal(); closeSuccessModal(); } });
+
+    // Botones +/-
+    document.getElementById('btnPlus_a').addEventListener('click',  () => { scoreA++; scoreValA.textContent = scoreA; });
+    document.getElementById('btnMinus_a').addEventListener('click', () => { if (scoreA > 0) { scoreA--; scoreValA.textContent = scoreA; } });
+    document.getElementById('btnPlus_b').addEventListener('click',  () => { scoreB++; scoreValB.textContent = scoreB; });
+    document.getElementById('btnMinus_b').addEventListener('click', () => { if (scoreB > 0) { scoreB--; scoreValB.textContent = scoreB; } });
+
+    // Toggle comodín
+    comodinRow.addEventListener('click', () => {
+      if (comodinRow.classList.contains('disabled')) return;
+      comodinActive = !comodinActive;
+      comodinCheck.classList.toggle('checked', comodinActive);
+    });
+
+    // Confirmar predicción
+    predConfirm.addEventListener('click', async () => {
+      if (!currentPartido) return;
+
+      predConfirm.disabled    = true;
+      predConfirm.textContent = 'GUARDANDO...';
+      predConfirm.style.opacity = '0.7';
+
+      try {
+        const data = await apiSavePrediccion(
+          CURRENT_USER.id,
+          currentPartido.id,
+          scoreA, scoreB,
+          comodinActive
+        );
+
+        if (data.ok) {
+          // Actualizar estado local
+          PREDICCIONES[currentPartido.id] = { golesA: scoreA, golesB: scoreB, comodin: comodinActive };
+          if (comodinActive) COMODINES_USADOS.push(currentFaseId);
+
+          currentPartido.estado   = 'predicted';
+          currentPartido.bloqueado = true;
+          buildFechas();
+          closePredModal();
+          openSuccessModal();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch(err) {
+        alert('Error de conexión. Intentá de nuevo.');
+      } finally {
+        predConfirm.disabled    = false;
+        predConfirm.textContent = 'CONFIRMAR PREDICCIÓN';
+        predConfirm.style.opacity = '1';
+      }
+    });
+
+    /* ── MODAL ÉXITO ── */
+    const successOverlay = document.getElementById('successModalOverlay');
+
+    function openSuccessModal() { successOverlay.classList.add('active'); }
+    function closeSuccessModal() { successOverlay.classList.remove('active'); }
+
+    document.getElementById('successClose').addEventListener('click', closeSuccessModal);
+    document.getElementById('successCloseBtn').addEventListener('click', closeSuccessModal);
+    successOverlay.addEventListener('click', e => { if (e.target === successOverlay) closeSuccessModal(); });
+
+    /* ═══════════════════════════════════════════════════
+       VISTA: PODIO
+    ═══════════════════════════════════════════════════ */
+    function buildPodium(resPuntajes) {
+      const wrap = document.getElementById('podiumWrap');
+
+      if (!resPuntajes || !resPuntajes.ok) {
+        showError('podiumWrap', 'No se pudieron cargar los puntajes.');
+        return;
+      }
+
+      const humanos  = resPuntajes.humanos  || [];
+      const mascotas = resPuntajes.mascotas || [];
+      wrap.innerHTML = '';
+
+      if (humanos.length < 3) {
+        wrap.innerHTML = `<p style="color:var(--celeste-mid);font-weight:700;text-align:center;padding:2rem;">El podio se mostrará cuando haya más puntajes cargados. 🏆</p>`;
+      } else {
+        const top3 = humanos.slice(0, 3);
+        const rest = humanos.slice(3);
+        const order   = [top3[1], top3[0], top3[2]];
+        const classes = ['second', 'first', 'third'];
+
+        const stageDiv = document.createElement('div');
+        stageDiv.className = 'podium-stage';
+
+        order.forEach((player, i) => {
+          if (!player) return;
+          const pos = i === 0 ? 2 : i === 1 ? 1 : 3;
+          const col = document.createElement('div');
+          col.className = `podium-col ${classes[i]}`;
+          col.innerHTML = `
+            <div class="podium-avatar-wrap">
+              <img class="podium-avatar" src="assets/profiles/${player.foto}.png" alt="${player.nombre}"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+              <div class="podium-avatar-fallback" style="display:none;">${player.nombre.slice(0,2)}</div>
+              <span class="podium-pos-badge">${pos}°</span>
+            </div>
+            <span class="podium-p-name">${player.nombre}</span>
+            <span class="podium-p-score">${player.puntos} pts</span>
+          `;
+          stageDiv.appendChild(col);
+        });
+
+        const stepsDiv = document.createElement('div');
+        stepsDiv.className = 'podium-steps';
+        stepsDiv.innerHTML = `
+          <div class="podium-step second">2°</div>
+          <div class="podium-step first">1°</div>
+          <div class="podium-step third">3°</div>
+        `;
+
+        wrap.appendChild(stageDiv);
+        wrap.appendChild(stepsDiv);
+
+        // Resto de humanos
+        if (rest.length) {
+          const listTitle = document.createElement('h3');
+          listTitle.style.cssText = 'font-family:var(--font-display);font-size:1.1rem;color:var(--celeste-mid);letter-spacing:.08em;width:100%;margin-top:1rem;';
+          listTitle.textContent = 'CLASIFICACIÓN GENERAL';
+          wrap.appendChild(listTitle);
+
+          const list = document.createElement('div');
+          list.className = 'ranking-list';
+          rest.forEach(player => {
+            const item = document.createElement('div');
+            item.className = 'ranking-item';
+            item.innerHTML = `
+              <span class="ranking-pos">${player.posicion}°</span>
+              <img class="ranking-avatar" src="assets/profiles/${player.foto}.png" alt="${player.nombre}"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+              <div class="ranking-avatar-fallback" style="display:none;">${player.nombre.slice(0,2)}</div>
+              <span class="ranking-name">${player.nombre}</span>
+              <div style="text-align:right;">
+                <div class="ranking-score">${player.puntos}</div>
+                <div class="ranking-pts-label">pts</div>
+              </div>
+            `;
+            list.appendChild(item);
+          });
+          wrap.appendChild(list);
+        }
+      }
+
+      // Sección mascotas
+      if (mascotas.length) {
+        const petTitle = document.createElement('h3');
+        petTitle.style.cssText = 'font-family:var(--font-display);font-size:1.1rem;color:var(--celeste-mid);letter-spacing:.08em;width:100%;margin-top:1.5rem;';
+        petTitle.textContent = '🐾 CATEGORÍA MASCOTAS';
+        wrap.appendChild(petTitle);
+
+        const petList = document.createElement('div');
+        petList.className = 'ranking-list';
+        mascotas.forEach(player => {
+          const item = document.createElement('div');
+          item.className = 'ranking-item';
+          item.innerHTML = `
+            <span class="ranking-pos">${player.posicion}°</span>
+            <img class="ranking-avatar" src="assets/profiles/${player.foto}.png" alt="${player.nombre}"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <div class="ranking-avatar-fallback" style="display:none;">${player.nombre.slice(0,2)}</div>
+            <span class="ranking-name">${player.nombre} 🐾</span>
+            <div style="text-align:right;">
+              <div class="ranking-score">${player.puntos}</div>
+              <div class="ranking-pts-label">pts</div>
+            </div>
+          `;
+          petList.appendChild(item);
+        });
+        wrap.appendChild(petList);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       VISTA: MI PUNTAJE
+    ═══════════════════════════════════════════════════ */
+    function buildMyScore(resPuntajes) {
+      const wrap = document.getElementById('myScoreWrap');
+
+      if (!resPuntajes || !resPuntajes.ok) {
+        showError('myScoreWrap', 'No se pudieron cargar los puntajes.');
+        return;
+      }
+
+      const humanos = resPuntajes.humanos || [];
+      const player  = humanos.find(p => p.id === CURRENT_USER.id)
+                   || { nombre: CURRENT_USER.nombre, foto: CURRENT_USER.foto, puntos: 0, posicion: '-' };
+
+      // Stats desde predicciones locales
+      const totalPred  = Object.keys(PREDICCIONES).length;
+      const comodines  = COMODINES_USADOS.length;
+
+      wrap.innerHTML = `
+        <div class="my-score-header">
+          <img class="my-score-avatar" src="assets/profiles/${player.foto || CURRENT_USER.foto}.png" alt="${player.nombre}"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+          <div class="ranking-avatar-fallback" style="display:none;width:64px;height:64px;border-radius:50%;background:var(--azul-marino);border:3px solid var(--celeste);align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.5rem;color:var(--blanco);">${player.nombre.slice(0,2)}</div>
+          <div class="my-score-info">
+            <div class="my-score-name">${player.nombre}</div>
+            <div class="my-score-pos">Posición ${player.posicion}° de ${humanos.length}</div>
+          </div>
+          <div class="my-score-total">
+            <div class="my-score-pts">${player.puntos}</div>
+            <div class="my-score-pts-label">puntos</div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-val">${totalPred}</div>
+            <div class="stat-label">Predicciones enviadas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--celeste);">${comodines}</div>
+            <div class="stat-label">Comodines usados</div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       VISTA: ADMIN — Cargar resultados
+    ═══════════════════════════════════════════════════ */
+    function buildAdmin() {
+      const wrap = document.getElementById('adminPartidosWrap');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+
+      if (!PARTIDOS.length) {
+        wrap.innerHTML = '<p style="color:var(--celeste-mid);font-size:.9rem;">No hay partidos cargados.</p>';
+        return;
+      }
+
+      // Agrupar partidos por fase
+      const fases = [];
+      const fasesMap = {};
+      PARTIDOS.forEach(p => {
+        if (p.equipoA === 'TBD') return; // skip sin definir
+        if (!fasesMap[p.fechaId]) {
+          fasesMap[p.fechaId] = [];
+          fases.push(p.fechaId);
+        }
+        fasesMap[p.fechaId].push(p);
+      });
+
+      fases.forEach(faseId => {
+        const label = FASE_LABELS[faseId] || faseId;
+        const titulo = document.createElement('p');
+        titulo.className = 'admin-fase-title';
+        titulo.textContent = label;
+        wrap.appendChild(titulo);
+
+        fasesMap[faseId].forEach(partido => {
+          wrap.appendChild(buildAdminCard(partido));
+        });
+      });
+    }
+
+    function buildAdminCard(partido) {
+      const card = document.createElement('div');
+      card.className = 'admin-partido-card';
+      const yaFinalizado = partido.estado === 'finalizado';
+
+      card.innerHTML = `
+        <div class="admin-partido-header">
+          <div>
+            <div class="admin-partido-teams">
+              ${partido.flagA} ${partido.equipoA} vs ${partido.equipoB} ${partido.flagB}
+            </div>
+            <div class="admin-partido-date">${partido.fechaJuego} · ${partido.horaArg} hs</div>
+          </div>
+        </div>
+        <div class="admin-result-row">
+          ${yaFinalizado
+            ? `<span class="admin-done-badge">✅ ${partido.golesA} - ${partido.golesB} · Finalizado</span>`
+            : `
+              <input class="admin-result-input" type="number" min="0" max="30"
+                id="ga_${partido.id}" placeholder="0" />
+              <span class="admin-sep">-</span>
+              <input class="admin-result-input" type="number" min="0" max="30"
+                id="gb_${partido.id}" placeholder="0" />
+              <button class="admin-save-btn" onclick="guardarResultado('${partido.id}')">
+                GUARDAR
+              </button>
+            `
+          }
+        </div>
+      `;
+      return card;
+    }
+
+    async function guardarResultado(partidoId) {
+      const inputA = document.getElementById('ga_' + partidoId);
+      const inputB = document.getElementById('gb_' + partidoId);
+      const btn    = inputA.closest('.admin-result-row').querySelector('.admin-save-btn');
+
+      const golesA = inputA.value.trim();
+      const golesB = inputB.value.trim();
+
+      if (golesA === '' || golesB === '') {
+        alert('Ingresá los goles de ambos equipos.');
+        return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = 'GUARDANDO...';
+
+      try {
+        const res = await apiCalcularPuntajes(CURRENT_USER.id, partidoId, Number(golesA), Number(golesB));
+        if (res.ok) {
+          // Actualizar estado local
+          const p = PARTIDOS.find(p => p.id === partidoId);
+          if (p) {
+            p.estado  = 'finalizado';
+            p.golesA  = Number(golesA);
+            p.golesB  = Number(golesB);
+          }
+          // Refrescar vistas
+          buildAdmin();
+          buildFechas();
+          // Refrescar puntajes
+          const resPuntajes = await apiGetPuntajes();
+          if (resPuntajes.ok) {
+            buildPodium(resPuntajes);
+            buildMyScore(resPuntajes);
+          }
+          alert(`✅ Resultado guardado: ${golesA} - ${golesB}\nPuntajes calculados correctamente.`);
+        } else {
+          alert('Error: ' + res.error);
+          btn.disabled    = false;
+          btn.textContent = 'GUARDAR';
+        }
+      } catch(err) {
+        alert('Error de conexión: ' + err.message);
+        btn.disabled    = false;
+        btn.textContent = 'GUARDAR';
+      }
+    }
+
+  </script>
+</body>
+</html>

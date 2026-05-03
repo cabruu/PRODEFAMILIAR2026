@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRODE FAMILIAR 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="js/sheets.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --celeste:        #74ACDF;
+      --celeste-light:  #E8F4FD;
+      --celeste-mid:    #A8CFEE;
+      --azul-marino:    #1A3A5C;
+      --azul-noche:     #0D2137;
+      --blanco:         #FFFFFF;
+      --verde:          #27AE60;
+      --gris:           #7F8C8D;
+      --dorado:         #F1C40F;
+      --font-display:   'Bebas Neue', sans-serif;
+      --font-body:      'Nunito', sans-serif;
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: var(--font-body);
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND ── */
+    body {
+      background-color: var(--azul-noche);
+      position: relative;
+    }
+
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      background-image: url('assets/bg/fondo.png');
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(13, 33, 55, 0.72) 0%,
+        rgba(13, 33, 55, 0.45) 50%,
+        rgba(13, 33, 55, 0.72) 100%
+      );
+      z-index: 1;
+    }
+
+    .bg-deco {
+      position: fixed;
+      inset: 0;
+      background-image: url('assets/bg/decoracion.png');
+      background-size: cover;
+      background-position: center;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.85;
+    }
+
+    /* ── MAIN CONTAINER ── */
+    .page {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeDown 0.7s ease both;
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: var(--celeste);
+      color: var(--azul-noche);
+      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.3rem 1rem;
+      border-radius: 100px;
+      margin-bottom: 0.75rem;
+    }
+
+    .header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 10vw, 6.5rem);
+      color: var(--blanco);
+      line-height: 0.9;
+      letter-spacing: 0.03em;
+      text-shadow: 0 4px 32px rgba(116, 172, 223, 0.5), 0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    .header h1 span {
+      color: var(--celeste);
+    }
+
+    .header-sub {
+      font-size: 1rem;
+      color: var(--celeste-mid);
+      font-weight: 600;
+      margin-top: 0.5rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── INSTRUCCIÓN ── */
+    .instruction {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 2.5rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    /* ── GRID DE PERFILES ── */
+    .profiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 1.5rem 1.25rem;
+      width: 100%;
+      max-width: 900px;
+      animation: fadeUp 0.7s 0.35s ease both;
+    }
+
+    /* ── CARD DE PERFIL ── */
+    .profile-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      padding: 1rem 0.5rem;
+      border-radius: 16px;
+      transition: transform 0.22s cubic-bezier(.34,1.56,.64,1), background 0.2s;
+      border: 2px solid transparent;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .profile-card:hover,
+    .profile-card:focus-visible {
+      transform: translateY(-8px) scale(1.04);
+      background: rgba(116, 172, 223, 0.12);
+      border-color: rgba(116, 172, 223, 0.4);
+      outline: none;
+    }
+
+    .profile-card:active {
+      transform: scale(0.97);
+    }
+
+    .avatar-wrap {
+      position: relative;
+      width: 90px;
+      height: 90px;
+    }
+
+    .avatar-img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--celeste-mid);
+      display: block;
+      background: var(--azul-marino);
+      /* Fallback si no carga la imagen */
+    }
+
+    .avatar-fallback {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--azul-marino), var(--celeste));
+      border: 3px solid var(--celeste-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--blanco);
+      letter-spacing: 0.05em;
+    }
+
+    /* Indicador de admin */
+    .admin-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 26px;
+      height: 26px;
+      background: var(--azul-noche);
+      border: 2px solid var(--dorado);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .profile-card.admin-card .avatar-fallback {
+      background: linear-gradient(135deg, #B7950B, var(--dorado));
+      border: 3px solid var(--dorado);
+    }
+
+    .profile-card.admin-card .profile-name {
+      color: var(--dorado);
+    }
+
+    .profile-card.admin-card:hover .profile-name {
+      color: var(--blanco);
+    }
+
+    /* Indicador de mascota */
+    .pet-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 26px;
+      height: 26px;
+      background: var(--azul-noche);
+      border: 2px solid var(--celeste);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .profile-name {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--blanco);
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+
+    .profile-card:hover .profile-name {
+      color: var(--celeste);
+    }
+
+    /* ── SEPARADOR MASCOTAS ── */
+    .section-divider {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 2rem 0 1rem;
+      animation: fadeUp 0.7s 0.45s ease both;
+    }
+
+    .section-divider span {
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.7rem;
+      color: var(--celeste-mid);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      white-space: nowrap;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(116, 172, 223, 0.3);
+    }
+
+    /* ── MODAL DE CONTRASEÑA ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 33, 55, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--azul-marino);
+      border: 1.5px solid rgba(116, 172, 223, 0.35);
+      border-radius: 20px;
+      padding: 2.5rem 2rem 2rem;
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      transform: scale(0.92) translateY(20px);
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--celeste);
+    }
+
+    .modal-avatar-fallback {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--azul-noche), var(--celeste));
+      border: 3px solid var(--celeste);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--blanco);
+    }
+
+    .modal-name {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--blanco);
+      letter-spacing: 0.06em;
+    }
+
+    .modal-label {
+      font-size: 0.85rem;
+      color: var(--celeste-mid);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      align-self: flex-start;
+      width: 100%;
+    }
+
+    .modal-input-wrap {
+      width: 100%;
+      position: relative;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 0.85rem 3rem 0.85rem 1.1rem;
+      background: rgba(13, 33, 55, 0.7);
+      border: 1.5px solid rgba(116, 172, 223, 0.35);
+      border-radius: 10px;
+      color: var(--blanco);
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+      letter-spacing: 0.1em;
+    }
+
+    .modal-input:focus {
+      border-color: var(--celeste);
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--celeste-mid);
+      font-size: 1.1rem;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .modal-error {
+      font-size: 0.82rem;
+      color: #E74C3C;
+      font-weight: 700;
+      min-height: 1.1rem;
+      align-self: flex-start;
+      margin-top: -0.5rem;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--celeste);
+      color: var(--azul-noche);
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .modal-btn:hover { background: var(--celeste-mid); }
+    .modal-btn:active { transform: scale(0.97); }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1.1rem;
+      background: none;
+      border: none;
+      color: var(--celeste-mid);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover { color: var(--blanco); }
+
+    .modal {
+      position: relative;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 3rem;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      animation: fadeUp 0.7s 0.55s ease both;
+    }
+
+    /* ── ANIMACIONES ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .profiles-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem 0.75rem;
+      }
+
+      .avatar-wrap, .avatar-img, .avatar-fallback {
+        width: 75px;
+        height: 75px;
+      }
+
+      .profile-name {
+        font-size: 1rem;
+      }
+
+      .header h1 {
+        font-size: clamp(2.8rem, 13vw, 4rem);
+      }
+    }
+
+    @media (max-width: 380px) {
+      .profiles-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem 0.5rem;
+      }
+
+      .avatar-wrap, .avatar-img, .avatar-fallback {
+        width: 68px;
+        height: 68px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Capas de fondo -->
+  <div class="bg-layer"></div>
+  <div class="bg-overlay"></div>
+  <div class="bg-deco"></div>
+
+  <!-- Contenido principal -->
+  <div class="page">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-badge">⚽ Mundial 2026</div>
+      <h1>PRODE<br/><span>FAMILIAR</span><br/>2026</h1>
+
+    </header>
+
+    <p class="instruction">¿Quién sos?</p>
+
+    <!-- Grid jugadores -->
+    <div class="profiles-grid" id="playersGrid">
+      <!-- generado por JS -->
+    </div>
+
+    <!-- Separador mascotas -->
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <span>🐾 Nuestras mascotas</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- Grid mascotas -->
+    <div class="profiles-grid" id="petsGrid" style="max-width:320px;">
+      <!-- generado por JS -->
+    </div>
+
+    <!-- Separador admin -->
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <span>⚙️ Administración</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- Grid admin -->
+    <div class="profiles-grid" id="adminGrid" style="max-width:160px;">
+      <!-- generado por JS -->
+    </div>
+
+    <p class="footer">Prode Familiar &copy; 2026 &mdash; Hecho con amor y camiseta puesta</p>
+  </div>
+
+  <!-- Modal contraseña -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalUserName">
+    <div class="modal">
+      <button class="modal-close" id="modalClose" aria-label="Cerrar">&times;</button>
+
+      <div id="modalAvatarWrap"></div>
+      <p class="modal-name" id="modalUserName"></p>
+
+      <p class="modal-label">Ingresá tu contraseña</p>
+
+      <div class="modal-input-wrap">
+        <input
+          class="modal-input"
+          type="password"
+          id="passInput"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          aria-label="Contraseña"
+        />
+        <button class="toggle-pass" id="togglePass" aria-label="Mostrar/ocultar contraseña" tabindex="-1">👁</button>
+      </div>
+
+      <p class="modal-error" id="modalError" role="alert"></p>
+
+      <button class="modal-btn" id="loginBtn">ENTRAR</button>
+    </div>
+  </div>
+
+  <script>
+    /* ─── DATOS DE JUGADORES ─── */
+    const PLAYERS = [
+      { id: 'juanki', name: 'JUANKI',  photo: 'assets/profiles/juanki.png',  pet: false, admin: false },
+      { id: 'vero',   name: 'VERO',    photo: 'assets/profiles/vero.png',    pet: false, admin: false },
+      { id: 'agus',   name: 'AGUS',    photo: 'assets/profiles/agus.png',    pet: false, admin: false },
+      { id: 'maria',  name: 'MARIA',   photo: 'assets/profiles/maria.png',   pet: false, admin: false },
+      { id: 'juan',   name: 'JUAN',    photo: 'assets/profiles/juan.png',    pet: false, admin: false },
+      { id: 'fede',   name: 'FEDE',    photo: 'assets/profiles/fede.png',    pet: false, admin: false },
+      { id: 'anahi',  name: 'ANAHÍ',   photo: 'assets/profiles/anahi.png',   pet: false, admin: false },
+      { id: 'sebi',   name: 'SEBI',    photo: 'assets/profiles/sebi.png',    pet: false, admin: false },
+      { id: 'tizi',   name: 'TIZI',    photo: 'assets/profiles/tizi.png',    pet: false, admin: false },
+      { id: 'felipe', name: 'FELIPE',  photo: 'assets/profiles/felipe.png',  pet: true,  admin: false },
+      { id: 'mara',   name: 'MARA',    photo: 'assets/profiles/mara.png',    pet: true,  admin: false },
+      { id: 'admin',  name: 'ADMIN',   photo: '',                             pet: false, admin: true  },
+    ];
+
+    /* ─── RENDER GRIDS ─── */
+    const humans = PLAYERS.filter(p => !p.pet && !p.admin);
+    const pets   = PLAYERS.filter(p =>  p.pet);
+
+    function buildCard(player) {
+      const card = document.createElement('div');
+      card.className = 'profile-card' + (player.admin ? ' admin-card' : '');
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `Seleccionar perfil de ${player.name}`);
+      card.dataset.id = player.id;
+
+      const initials = player.name.slice(0, 2);
+
+      card.innerHTML = `
+        <div class="avatar-wrap">
+          <img
+            class="avatar-img"
+            src="${player.photo}"
+            alt="${player.name}"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+          />
+          <div class="avatar-fallback" style="display:none;">${initials}</div>
+          ${player.pet ? '<div class="pet-badge">🐾</div>' : player.admin ? '<div class="admin-badge">⚙️</div>' : ''}
+        </div>
+        <span class="profile-name">${player.name}</span>
+      `;
+
+      card.addEventListener('click', () => openModal(player));
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openModal(player); });
+
+      return card;
+    }
+
+    const playersGrid = document.getElementById('playersGrid');
+    const petsGrid    = document.getElementById('petsGrid');
+
+    const admins    = PLAYERS.filter(p => p.admin);
+    const adminGrid = document.getElementById('adminGrid');
+
+    humans.forEach(p => playersGrid.appendChild(buildCard(p)));
+    pets.forEach(p   => petsGrid.appendChild(buildCard(p)));
+    admins.forEach(p => adminGrid.appendChild(buildCard(p)));
+
+    /* ─── MODAL ─── */
+    let selectedPlayer = null;
+
+    const overlay    = document.getElementById('modalOverlay');
+    const modalClose = document.getElementById('modalClose');
+    const modalName  = document.getElementById('modalUserName');
+    const avatarWrap = document.getElementById('modalAvatarWrap');
+    const passInput  = document.getElementById('passInput');
+    const loginBtn   = document.getElementById('loginBtn');
+    const modalError = document.getElementById('modalError');
+    const togglePass = document.getElementById('togglePass');
+
+    function openModal(player) {
+      selectedPlayer = player;
+      modalName.textContent = player.name;
+      passInput.value = '';
+      modalError.textContent = '';
+
+      // Avatar en modal
+      avatarWrap.innerHTML = `
+        <img
+          class="modal-avatar"
+          src="${player.photo}"
+          alt="${player.name}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+        />
+        <div class="modal-avatar-fallback" style="display:none;">${player.name.slice(0,2)}</div>
+      `;
+
+      overlay.classList.add('active');
+      setTimeout(() => passInput.focus(), 300);
+    }
+
+    function closeModal() {
+      overlay.classList.remove('active');
+      selectedPlayer = null;
+    }
+
+    modalClose.addEventListener('click', closeModal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    /* Mostrar/ocultar contraseña */
+    togglePass.addEventListener('click', () => {
+      const isPass = passInput.type === 'password';
+      passInput.type = isPass ? 'text' : 'password';
+      togglePass.textContent = isPass ? '🙈' : '👁';
+    });
+
+    /* ─── LOGIN ─── */
+    function doLogin() {
+      if (!selectedPlayer) return;
+      const password = passInput.value.trim();
+
+      if (!password) {
+        shakeError('Por favor ingresá tu contraseña.');
+        return;
+      }
+
+      // Estado de carga
+      loginBtn.disabled    = true;
+      loginBtn.textContent = 'ENTRANDO...';
+      loginBtn.style.opacity = '0.7';
+
+      apiLogin(selectedPlayer.id, password)
+        .then(data => {
+          if (data.ok) {
+            guardarSesion(data.user);
+            window.location.href = 'home.html';
+          } else {
+            shakeError('Contraseña incorrecta. Intentá de nuevo.');
+            passInput.value = '';
+            passInput.focus();
+          }
+        })
+        .catch(() => {
+          shakeError('Error de conexión. Verificá tu internet.');
+        })
+        .finally(() => {
+          loginBtn.disabled    = false;
+          loginBtn.textContent = 'ENTRAR';
+          loginBtn.style.opacity = '1';
+        });
+    }
+
+    loginBtn.addEventListener('click', doLogin);
+    passInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+    function shakeError(msg) {
+      modalError.textContent = msg;
+      passInput.style.borderColor = '#E74C3C';
+      passInput.animate([
+        { transform: 'translateX(-6px)' },
+        { transform: 'translateX(6px)' },
+        { transform: 'translateX(-4px)' },
+        { transform: 'translateX(4px)' },
+        { transform: 'translateX(0)' },
+      ], { duration: 300, easing: 'ease-out' });
+      setTimeout(() => { passInput.style.borderColor = ''; }, 1500);
+    }
+
+  </script>
+</body>
+</html>
