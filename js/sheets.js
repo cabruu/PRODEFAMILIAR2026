@@ -2,7 +2,8 @@
 //  PRODE FAMILIAR 2026 — Conector con Google Apps Script
 // ============================================================
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_H07-K_5iLxrP57As_H3WQS-jfWFpXU86ygSSfd398_F9yBBsxPne4LsFsYdn1eRAkA/exec';
+// ⚠️ REEMPLAZÁ ESTA URL CON LA TUYA
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8vraGN-jq9KTc3qnkFK0yYZcnj31s829haeY_weOyusiMZx6Tah1OgChDUH2-V-F07w/exec';
 
 // ── HELPER: SHA-256 en el navegador ───────────────────────
 async function sha256(text) {
@@ -14,13 +15,12 @@ async function sha256(text) {
 }
 
 // ── HELPER: llamada a la API ───────────────────────────────
+// Usamos GET con el payload en ?data= para evitar el problema de CORS
+// que bloquea los POST desde GitHub Pages hacia Apps Script.
 async function apiCall(body) {
-  const response = await fetch(APPS_SCRIPT_URL, {
-    method:   'POST',
-    headers:  { 'Content-Type': 'text/plain' }, // Apps Script requiere text/plain para evitar preflight CORS
-    body:     JSON.stringify(body),
-    redirect: 'follow',
-  });
+  const encoded  = encodeURIComponent(JSON.stringify(body));
+  const url      = `${APPS_SCRIPT_URL}?data=${encoded}`;
+  const response = await fetch(url, { redirect: 'follow' });
 
   if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
   return await response.json();
