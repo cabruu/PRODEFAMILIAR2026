@@ -1270,6 +1270,21 @@
     };
 
     /* ═══════════════════════════════════════════════════
+       SESIÓN
+    ═══════════════════════════════════════════════════ */
+    function getSesion() {
+      const id = sessionStorage.getItem('prode_user');
+      if (!id) return null;
+      return {
+        id:        id,
+        nombre:    sessionStorage.getItem('prode_name')      || '',
+        foto:      sessionStorage.getItem('prode_foto')      || '',
+        esMascota: sessionStorage.getItem('prode_esMascota') === 'true',
+        esAdmin:   sessionStorage.getItem('prode_esAdmin')   === 'true',
+      };
+    }
+
+    /* ═══════════════════════════════════════════════════
        INIT
     ═══════════════════════════════════════════════════ */
     window.addEventListener('DOMContentLoaded', async () => {
