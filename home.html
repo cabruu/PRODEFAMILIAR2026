@@ -1041,6 +1041,24 @@
       letter-spacing: 0.06em;
     }
 
+    .admin-select {
+      flex: 1;
+      min-width: 130px;
+      padding: 0.5rem 0.6rem;
+      background: rgba(13,33,55,0.8);
+      border: 1.5px solid rgba(116,172,223,0.35);
+      border-radius: 8px;
+      color: var(--blanco);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .admin-select:focus { border-color: var(--celeste); }
+    .admin-select option { background: var(--azul-marino); color: var(--blanco); }
+
     .admin-fase-title {
       font-family: var(--font-display);
       font-size: 1.2rem;
@@ -1102,7 +1120,7 @@
     <button class="menu-item" id="menuReglas" data-view="reglas">
       <span class="menu-icon">📋</span> Reglas
     </button>
-    <button class="menu-item" id="menuAdmin" data-view="admin" id="menuAdminBtn" style="display:none;">
+    <button class="menu-item" id="menuAdmin" data-view="admin" style="display:none;">
       <span class="menu-icon">⚙️</span> Admin
     </button>
     <div class="menu-divider"></div>
@@ -1258,6 +1276,25 @@
     let COMODINES_USADOS = []; // array de fase_id donde ya usó comodín
     let PLAYERS_DATA   = [];
     let LOADING        = false;
+
+    // Lista de países para desplegable admin
+    const PAISES = ["Alemania","Arabia Saudita","Argelia","Argentina","Australia","Austria",
+      "Bosnia","Brasil","Bélgica","Cabo Verde","Canadá","Colombia","Corea del Sur",
+      "Costa de Marfil","Croacia","Curazao","Ecuador","Egipto","Escocia","España",
+      "Estados Unidos","Francia","Ghana","Haití","Inglaterra","Irán","Irak","Japón",
+      "Jordania","Marruecos","México","Nueva Zelanda","Noruega","Países Bajos","Panamá",
+      "Paraguay","Portugal","Qatar","RD Congo","Rep. Checa","Senegal","Sudáfrica","Suecia",
+      "Suiza","Túnez","Turquía","Uruguay","Uzbekistán"];
+
+    // Fases eliminatorias — requieren equipos definidos para mostrarse a jugadores
+    const FASES_ELIMINATORIAS = ['16AVOS','OCTAVOS','CUARTOS','SEMIS','TERCERO','FINAL'];
+
+    function faseHabilitada(fechaId) {
+      if (!FASES_ELIMINATORIAS.includes(fechaId)) return true;
+      const partidosDeFase = PARTIDOS.filter(p => p.fechaId === fechaId);
+      if (!partidosDeFase.length) return false;
+      return partidosDeFase.every(p => p.equipoA !== 'TBD' && p.equipoB !== 'TBD');
+    }
 
     // Labels visuales por fase
     const FASE_LABELS = {
@@ -1419,10 +1456,12 @@
     };
 
     // Mostrar menú admin si corresponde
-    if (CURRENT_USER && CURRENT_USER.esAdmin) {
+    function checkAdminUI() {
+      const esAdmin = CURRENT_USER && CURRENT_USER.esAdmin;
       const adminBtn = document.getElementById('menuAdmin');
-      if (adminBtn) adminBtn.style.display = 'flex';
+      if (adminBtn) adminBtn.style.display = esAdmin ? 'flex' : 'none';
     }
+    checkAdminUI();
 
     document.querySelectorAll('.menu-item[data-view]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1467,9 +1506,13 @@
         fasesMap[p.fechaId].push(p);
       });
 
-      // Filtrar fases que tienen al menos un partido con equipos definidos
+      const esAdmin = CURRENT_USER && CURRENT_USER.esAdmin;
+
+      // Para jugadores: ocultar fases eliminatorias hasta que admin defina todos los equipos
+      // Para admin: mostrar todas las fases
       const fasesVisibles = fases.filter(faseId => {
-        return fasesMap[faseId].some(p => p.equipoA !== 'TBD');
+        if (esAdmin) return true; // admin ve todo
+        return faseHabilitada(faseId); // jugadores solo ven fases completas
       });
 
       fasesVisibles.forEach((faseId, fi) => {
@@ -1937,21 +1980,18 @@
         </div>
 
         ${esTBD ? `
-          <div class="admin-result-row" style="flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem;">
-            <input class="admin-result-input" type="text" style="width:110px;font-size:.85rem;"
-              id="ea_${partido.id}" placeholder="País A" />
+          <div class="admin-result-row" style="flex-wrap:wrap;gap:.5rem;align-items:center;">
+            <select class="admin-select" id="ea_${partido.id}">
+              <option value="">— País A —</option>
+              ${PAISES.map(p => `<option value="${p}">${p}</option>`).join('')}
+            </select>
             <span class="admin-sep">vs</span>
-            <input class="admin-result-input" type="text" style="width:110px;font-size:.85rem;"
-              id="eb_${partido.id}" placeholder="País B" />
-            <input class="admin-result-input" type="text" style="width:52px;font-size:1.2rem;text-align:center;"
-              id="fa_${partido.id}" placeholder="🏳" />
-            <input class="admin-result-input" type="text" style="width:52px;font-size:1.2rem;text-align:center;"
-              id="fb_${partido.id}" placeholder="🏳" />
-            <input class="admin-result-input" type="text" style="width:100px;font-size:.85rem;"
-              id="fj_${partido.id}" placeholder="dd/mm/yyyy" />
-            <input class="admin-result-input" type="text" style="width:72px;font-size:.85rem;"
-              id="hj_${partido.id}" placeholder="HH:MM" />
-            <button class="admin-save-btn" style="background:var(--celeste);color:var(--azul-noche);" onclick="guardarEquipos('${partido.id}')">
+            <select class="admin-select" id="eb_${partido.id}">
+              <option value="">— País B —</option>
+              ${PAISES.map(p => `<option value="${p}">${p}</option>`).join('')}
+            </select>
+            <button class="admin-save-btn" style="background:var(--celeste);color:var(--azul-noche);"
+              onclick="guardarEquipos('${partido.id}')">
               DEFINIR
             </button>
           </div>
@@ -2019,8 +2059,8 @@
 
     // ── GUARDAR EQUIPOS EN PARTIDOS TBD (admin) ──────────────
     async function guardarEquipos(partidoId) {
-      const inputA = document.getElementById('ta_' + partidoId);
-      const inputB = document.getElementById('tb_' + partidoId);
+      const inputA = document.getElementById('ea_' + partidoId);
+      const inputB = document.getElementById('eb_' + partidoId);
       if (!inputA || !inputB) return;
 
       const equipoA = inputA.value.trim();
