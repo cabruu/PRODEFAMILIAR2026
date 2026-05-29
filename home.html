@@ -1229,6 +1229,9 @@
           <small id="comodinSubtext">Duplica el puntaje de este partido</small>
         </div>
       </div>
+      <p id="adminPredNote" style="display:none;font-size:0.78rem;color:var(--celeste-mid);font-weight:700;text-align:center;letter-spacing:0.04em;">
+        ⚙️ Las predicciones del admin no cuentan para el puntaje
+      </p>
 
       <button class="pred-confirm-btn" id="predConfirmBtn">CONFIRMAR PREDICCIÓN</button>
     </div>
@@ -1634,6 +1637,16 @@
         comodinSub.textContent = 'Duplica el puntaje de este partido';
       }
 
+      // Si es admin, ocultar comodín y mostrar nota
+      if (CURRENT_USER && CURRENT_USER.esAdmin) {
+        comodinRow.style.display    = 'none';
+        document.getElementById('adminPredNote').style.display = 'block';
+        comodinActive = false;
+      } else {
+        comodinRow.style.display    = '';
+        document.getElementById('adminPredNote').style.display = 'none';
+      }
+
       predOverlay.classList.add('active');
     }
 
@@ -1880,11 +1893,10 @@
         return;
       }
 
-      // Agrupar partidos por fase
+      // Agrupar TODOS los partidos por fase (incluyendo TBD)
       const fases = [];
       const fasesMap = {};
       PARTIDOS.forEach(p => {
-        if (p.equipoA === 'TBD') return; // skip sin definir
         if (!fasesMap[p.fechaId]) {
           fasesMap[p.fechaId] = [];
           fases.push(p.fechaId);
@@ -1909,29 +1921,48 @@
       const card = document.createElement('div');
       card.className = 'admin-partido-card';
       const yaFinalizado = partido.estado === 'finalizado';
+      const esTBD = partido.equipoA === 'TBD';
 
       card.innerHTML = `
         <div class="admin-partido-header">
           <div>
             <div class="admin-partido-teams">
-              ${partido.flagA} ${partido.equipoA} vs ${partido.equipoB} ${partido.flagB}
+              ${esTBD
+                ? '<span style="color:var(--gris-light);font-size:0.95rem;">Por definir</span>'
+                : partido.flagA + ' ' + partido.equipoA + ' vs ' + partido.equipoB + ' ' + partido.flagB
+              }
             </div>
-            <div class="admin-partido-date">${partido.fechaJuego} · ${partido.horaArg} hs</div>
+            <div class="admin-partido-date">${partido.fechaJuego || '?'} · ${partido.horaArg || '?'} hs · <span style="color:var(--celeste-mid)">${partido.id}</span></div>
           </div>
         </div>
+
+        ${esTBD ? `
+          <div class="admin-result-row" style="flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem;">
+            <input class="admin-result-input" type="text" style="width:110px;font-size:.85rem;"
+              id="ea_${partido.id}" placeholder="País A" />
+            <span class="admin-sep">vs</span>
+            <input class="admin-result-input" type="text" style="width:110px;font-size:.85rem;"
+              id="eb_${partido.id}" placeholder="País B" />
+            <input class="admin-result-input" type="text" style="width:52px;font-size:1.2rem;text-align:center;"
+              id="fa_${partido.id}" placeholder="🏳" />
+            <input class="admin-result-input" type="text" style="width:52px;font-size:1.2rem;text-align:center;"
+              id="fb_${partido.id}" placeholder="🏳" />
+            <input class="admin-result-input" type="text" style="width:100px;font-size:.85rem;"
+              id="fj_${partido.id}" placeholder="dd/mm/yyyy" />
+            <input class="admin-result-input" type="text" style="width:72px;font-size:.85rem;"
+              id="hj_${partido.id}" placeholder="HH:MM" />
+            <button class="admin-save-btn" style="background:var(--celeste);color:var(--azul-noche);" onclick="guardarEquipos('${partido.id}')">
+              DEFINIR
+            </button>
+          </div>
+        ` : ''}
+
         <div class="admin-result-row">
           ${yaFinalizado
-            ? `<span class="admin-done-badge">✅ ${partido.golesA} - ${partido.golesB} · Finalizado</span>`
-            : `
-              <input class="admin-result-input" type="number" min="0" max="30"
-                id="ga_${partido.id}" placeholder="0" />
-              <span class="admin-sep">-</span>
-              <input class="admin-result-input" type="number" min="0" max="30"
-                id="gb_${partido.id}" placeholder="0" />
-              <button class="admin-save-btn" onclick="guardarResultado('${partido.id}')">
-                GUARDAR
-              </button>
-            `
+            ? '<span class="admin-done-badge">\u2705 ' + partido.golesA + ' - ' + partido.golesB + ' \u00b7 Finalizado</span>'
+            : esTBD
+              ? '<span style="color:var(--gris-light);font-size:.8rem;font-weight:700;">\u2197\ufe0f Defin\u00ed los equipos primero</span>'
+              : '<input class="admin-result-input" type="number" min="0" max="30" id="ga_' + partido.id + '" placeholder="0" /><span class="admin-sep">-</span><input class="admin-result-input" type="number" min="0" max="30" id="gb_' + partido.id + '" placeholder="0" /><button class="admin-save-btn" onclick="guardarResultado(\'' + partido.id + '\')">GUARDAR</button>'
           }
         </div>
       `;
@@ -1983,6 +2014,55 @@
         alert('Error de conexión: ' + err.message);
         btn.disabled    = false;
         btn.textContent = 'GUARDAR';
+      }
+    }
+
+    // ── GUARDAR EQUIPOS EN PARTIDOS TBD (admin) ──────────────
+    async function guardarEquipos(partidoId) {
+      const inputA = document.getElementById('ta_' + partidoId);
+      const inputB = document.getElementById('tb_' + partidoId);
+      if (!inputA || !inputB) return;
+
+      const equipoA = inputA.value.trim();
+      const equipoB = inputB.value.trim();
+
+      if (!equipoA || !equipoB) {
+        alert('Ingresá los nombres de ambos equipos.');
+        return;
+      }
+
+      const btn = inputA.closest('.admin-result-row').querySelector('.admin-save-btn');
+      btn.disabled    = true;
+      btn.textContent = 'GUARDANDO...';
+
+      try {
+        const res = await apiCall({
+          action:    'setEquipos',
+          adminId:   CURRENT_USER.id,
+          partidoId,
+          equipoA,
+          equipoB,
+        });
+
+        if (res.ok) {
+          // Actualizar estado local
+          const p = PARTIDOS.find(p => p.id === partidoId);
+          if (p) {
+            p.equipoA = equipoA;
+            p.equipoB = equipoB;
+          }
+          buildAdmin();
+          buildFechas();
+          alert(`✅ Equipos definidos: ${equipoA} vs ${equipoB}`);
+        } else {
+          alert('Error: ' + res.error);
+          btn.disabled    = false;
+          btn.textContent = 'DEFINIR';
+        }
+      } catch(err) {
+        alert('Error de conexión: ' + err.message);
+        btn.disabled    = false;
+        btn.textContent = 'DEFINIR';
       }
     }
 
