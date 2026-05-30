@@ -558,7 +558,7 @@
       <!-- generado por JS -->
     </div>
 
-    <p class="footer">Prode Familiar &copy; 2026 &mdash; Familia Cabral</p>
+    <p class="footer">Prode Familiar &copy; 2026 &mdash; Hecho con amor y camiseta puesta</p>
   </div>
 
   <!-- Modal contraseña -->
@@ -663,12 +663,33 @@
     const togglePass = document.getElementById('togglePass');
 
     function openModal(player) {
+      // Jugadores y mascotas entran directo sin contraseña
+      if (!player.admin) {
+        loginBtn.disabled    = true;
+        loginBtn.textContent = 'ENTRANDO...';
+        apiLogin(player.id, null)
+          .then(data => {
+            if (data.ok) {
+              guardarSesion(data.user);
+              window.location.href = 'home.html';
+            } else {
+              alert('Error al iniciar sesión. Intentá de nuevo.');
+            }
+          })
+          .catch(() => alert('Error de conexión. Verificá tu internet.'))
+          .finally(() => {
+            loginBtn.disabled    = false;
+            loginBtn.textContent = 'ENTRAR';
+          });
+        return;
+      }
+
+      // Solo el admin ve el modal de contraseña
       selectedPlayer = player;
       modalName.textContent = player.name;
       passInput.value = '';
       modalError.textContent = '';
 
-      // Avatar en modal
       avatarWrap.innerHTML = `
         <img
           class="modal-avatar"
