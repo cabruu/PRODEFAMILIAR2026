@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d2137">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Prode Familiar">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PRODE FAMILIAR 2026</title>
@@ -1201,7 +1210,7 @@
           <li>El comodín se aplica a un partido específico dentro de esa instancia.</li>
           <li>Si usás el comodín, el puntaje que obtengas en ese partido se <strong>duplica</strong>.</li>
           <li>Si usaste el comodín pero no acertaste nada, no sumás puntos extra.</li>
-          <li>¡IMPORTANTE! Una vez enviado, NO puede cambiarse.</li>
+          <li>¡Usalo con inteligencia! Una vez enviado, no puede cambiarse.</li>
         </ul>
       </div>
 
@@ -1227,7 +1236,7 @@
 
       <div class="rules-block">
         <p class="rules-block-title">🐾 Mascotas</p>
-        <p>Felipe y Mara también participan. Sus predicciones pueden ser cargadas por cualquier miembro de la familia (o por una IA 🤖)</p>
+        <p>Felipe y Mara también participan. Sus predicciones pueden ser cargadas por cualquier miembro de la familia (o por una IA 🤖). ¡Que gane el mejor!</p>
       </div>
     </div>
 
@@ -1290,7 +1299,7 @@
       <button class="pred-modal-close" id="successClose">&times;</button>
       <span class="success-icon">🎉</span>
       <p class="success-title">¡PREDICCIÓN REALIZADA!</p>
-      <p class="success-sub">Tu predicción fue guardada correctamente</p>
+      <p class="success-sub">Tu predicción fue guardada correctamente. ¡Buena suerte!</p>
       <button class="success-close-btn" id="successCloseBtn">CONTINUAR</button>
     </div>
   </div>
@@ -1431,6 +1440,12 @@
         // Si tiene onclick custom (admin), lo maneja onclick; no duplicar
         if (predConfirm.onclick) return;
         if (!currentPartido) return;
+        // Última verificación antes de enviar
+        if (esBloqueado(currentPartido)) {
+          closePredModal();
+          buildFechas();
+          return;
+        }
 
         predConfirm.disabled    = true;
         predConfirm.textContent = 'GUARDANDO...';
@@ -1830,6 +1845,11 @@
       return card;
     }
     function openPredModal(partido, faseId, comodinUsado) {
+      // Re-verificar al momento de abrir por si el partido arrancó mientras estaba en la página
+      if (esBloqueado(partido)) {
+        buildFechas(); // refrescar cards para mostrar estado actualizado
+        return;
+      }
       currentPartido = partido;
       currentFaseId  = faseId;
       scoreA = 0; scoreB = 0; comodinActive = false;
@@ -2365,6 +2385,13 @@
       }
     }
 
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
   </script>
 </body>
 </html>
