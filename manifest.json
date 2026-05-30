@@ -2,7 +2,7 @@
   "name": "Prode Familiar",
   "short_name": "Prode",
   "description": "Prode familiar del Mundial 2026",
-  "start_url": "/PRODEFAMILIAR2026/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0d2137",
@@ -52,5 +52,5 @@
       "purpose": "any maskable"
     }
   ],
-  "scope": "/PRODEFAMILIAR2026/"
+  "scope": "./"
 }
