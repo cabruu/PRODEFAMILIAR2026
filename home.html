@@ -1197,7 +1197,7 @@
       <div class="rules-block">
         <p class="rules-block-title">🌟 El Comodín</p>
         <ul>
-          <li>Cada jugador tiene <strong>un comodín por Fecha/Instancia</strong> (Fecha 1, Fecha 2, Fecha 3, 16avos, Octavos, Cuartos, Semi y Final).</li>
+          <li>Cada jugador tiene <strong>un comodín por Fecha/Instancia</strong> (Fecha 1, Fecha 2, Fecha 3, Octavos, Cuartos, Semi y Final).</li>
           <li>El comodín se aplica a un partido específico dentro de esa instancia.</li>
           <li>Si usás el comodín, el puntaje que obtengas en ese partido se <strong>duplica</strong>.</li>
           <li>Si usaste el comodín pero no acertaste nada, no sumás puntos extra.</li>
@@ -1290,7 +1290,7 @@
       <button class="pred-modal-close" id="successClose">&times;</button>
       <span class="success-icon">🎉</span>
       <p class="success-title">¡PREDICCIÓN REALIZADA!</p>
-      <p class="success-sub">Tu predicción fue guardada correctamente.</p>
+      <p class="success-sub">Tu predicción fue guardada correctamente</p>
       <button class="success-close-btn" id="successCloseBtn">CONTINUAR</button>
     </div>
   </div>
@@ -1523,6 +1523,10 @@
         // Renderizar vistas
         buildFechas();
         buildPodium(resPuntajes.ok ? resPuntajes : null);
+
+        // Refrescar las cards cada 60 segundos para bloquear partidos que
+        // arrancan mientras el usuario está en la página (sin fetch extra)
+        setInterval(buildFechas, 60_000);
         buildMyScore(resPuntajes.ok ? resPuntajes : null);
         if (CURRENT_USER.esAdmin) buildAdmin();
 
@@ -1710,6 +1714,25 @@
       });
     }
 
+    // Recalcula si el partido ya comenzó usando la hora local del dispositivo.
+    // Evita que un usuario que cargó la página antes del inicio pueda predecir igual.
+    function esBloqueado(partido) {
+      // Si el servidor ya lo marcó como bloqueado, respetarlo
+      if (partido.bloqueado) return true;
+      // Si no hay fecha/hora no podemos calcular → no bloqueamos
+      if (!partido.fechaJuego || !partido.horaArg) return false;
+      try {
+        // fechaJuego viene "dd/MM/yyyy", horaArg viene "HH:mm" (hora Argentina)
+        const [dia, mes, anio] = partido.fechaJuego.split('/').map(Number);
+        const [hh, mm]         = partido.horaArg.split(':').map(Number);
+        // Construir fecha en zona Argentina (UTC-3)
+        const inicioUTC = Date.UTC(anio, mes - 1, dia, hh + 3, mm);
+        return Date.now() >= inicioUTC;
+      } catch (_) {
+        return false;
+      }
+    }
+
     function buildMatchCard(partido, pred, faseId, comodinUsado) {
       const card = document.createElement('div');
       const hasComodin  = pred && pred.comodin;
@@ -1720,7 +1743,7 @@
       let estadoVisual;
       if (partido.estado === 'finalizado')   estadoVisual = 'finished';
       else if (pred)                         estadoVisual = 'predicted';
-      else if (partido.bloqueado)            estadoVisual = 'locked';
+      else if (esBloqueado(partido))         estadoVisual = 'locked';
       else                                   estadoVisual = 'pending';
 
       card.className = `match-card ${estadoVisual}`;
