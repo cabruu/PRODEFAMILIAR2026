@@ -300,6 +300,24 @@
       min-width: 0;
     }
 
+    .flag-emoji {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .pred-flag-emoji {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      border: 3px solid rgba(116,172,223,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem;
+      background: rgba(255,255,255,0.05);
+    }
+
     .flag-img {
       width: 36px; height: 36px;
       border-radius: 50%;
@@ -1286,6 +1304,21 @@
       "Paraguay","Portugal","Qatar","RD Congo","Rep. Checa","Senegal","Sudáfrica","Suecia",
       "Suiza","Túnez","Turquía","Uruguay","Uzbekistán"];
 
+    const FLAG_EMOJIS = {
+      'Argentina': '🇦🇷', 'Argelia': '🇩🇿', 'Austria': '🇦🇹', 'Jordania': '🇯🇴',
+      'México': '🇲🇽', 'Sudáfrica': '🇿🇦', 'Corea del Sur': '🇰🇷', 'Rep. Checa': '🇨🇿',
+      'Canadá': '🇨🇦', 'Bosnia': '🇧🇦', 'Estados Unidos': '🇺🇸', 'Paraguay': '🇵🇾',
+      'Qatar': '🇶🇦', 'Suiza': '🇨🇭', 'Brasil': '🇧🇷', 'Marruecos': '🇲🇦',
+      'Haití': '🇭🇹', 'Escocia': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'Australia': '🇦🇺', 'Turquía': '🇹🇷',
+      'Alemania': '🇩🇪', 'Curazao': '🇨🇼', 'Países Bajos': '🇳🇱', 'Japón': '🇯🇵',
+      'Costa de Marfil': '🇨🇮', 'Ecuador': '🇪🇨', 'Suecia': '🇸🇪', 'Túnez': '🇹🇳',
+      'España': '🇪🇸', 'Cabo Verde': '🇨🇻', 'Bélgica': '🇧🇪', 'Egipto': '🇪🇬',
+      'Arabia Saudita': '🇸🇦', 'Uruguay': '🇺🇾', 'Irán': '🇮🇷', 'Nueva Zelanda': '🇳🇿',
+      'Francia': '🇫🇷', 'Senegal': '🇸🇳', 'Irak': '🇮🇶', 'Noruega': '🇳🇴',
+      'Portugal': '🇵🇹', 'RD Congo': '🇨🇩', 'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Croacia': '🇭🇷',
+      'Ghana': '🇬🇭', 'Panamá': '🇵🇦', 'Uzbekistán': '🇺🇿', 'Colombia': '🇨🇴',
+    };
+
     // Fases eliminatorias — requieren equipos definidos para mostrarse a jugadores
     const FASES_ELIMINATORIAS = ['16AVOS','OCTAVOS','CUARTOS','SEMIS','TERCERO','FINAL'];
 
@@ -1531,7 +1564,7 @@
             <span class="fecha-label">${label}</span>
             ${comodinUsado
               ? '<span class="fecha-badge comodin-used">⭐ Comodín usado</span>'
-              : '<span class="fecha-badge">Comodín disponible</span>'
+              : (CURRENT_USER && CURRENT_USER.esAdmin ? '' : '<span class="fecha-badge">Comodín disponible</span>')
             }
           </div>
           <span class="fecha-arrow">▼</span>
@@ -1564,90 +1597,98 @@
 
     function buildMatchCard(partido, pred, faseId, comodinUsado) {
       const card = document.createElement('div');
-      const hasComodin = pred && pred.comodin;
+      const hasComodin  = pred && pred.comodin;
+      const esAdmin     = CURRENT_USER && CURRENT_USER.esAdmin;
+      const esTBD       = partido.equipoA === 'TBD';
 
-      // Determinar estado visual
+      // Estado visual
       let estadoVisual;
-      if (partido.estado === 'finalizado') {
-        estadoVisual = 'finished';
-      } else if (pred) {
-        estadoVisual = 'predicted';
-      } else if (partido.bloqueado) {
-        estadoVisual = 'locked';
-      } else {
-        estadoVisual = 'pending';
-      }
+      if (partido.estado === 'finalizado')   estadoVisual = 'finished';
+      else if (pred)                         estadoVisual = 'predicted';
+      else if (partido.bloqueado)            estadoVisual = 'locked';
+      else                                   estadoVisual = 'pending';
 
       card.className = `match-card ${estadoVisual}`;
 
+      // Label de estado
       let statusLabel = '';
       let resultHTML  = '';
 
-      switch (estadoVisual) {
-        case 'pending':
-          statusLabel = 'Predecir';
-          break;
-        case 'predicted':
-          statusLabel = `Mi pred: ${pred.golesA} - ${pred.golesB}`;
-          break;
-        case 'finished':
-          statusLabel = 'Finalizado';
-          resultHTML = `
-            <div class="match-result">
-              <span class="result-real">${partido.golesA} - ${partido.golesB}</span>
-              ${pred
-                ? `<span class="result-pred">Tu pred: ${pred.golesA}-${pred.golesB}</span>`
-                : '<span class="result-pred">Sin predicción</span>'
-              }
-            </div>`;
-          break;
-        case 'locked':
-          statusLabel = 'Sin predicción';
-          break;
+      if (esAdmin) {
+        // Vista admin
+        switch (estadoVisual) {
+          case 'pending':  statusLabel = esTBD ? 'Definir equipos' : 'Cargar resultado'; break;
+          case 'finished': statusLabel = 'Finalizado'; break;
+          case 'locked':   statusLabel = 'Cargar resultado'; break;
+          default:         statusLabel = 'Cargar resultado';
+        }
+      } else {
+        // Vista jugador
+        switch (estadoVisual) {
+          case 'pending':    statusLabel = 'Predecir'; break;
+          case 'predicted':  statusLabel = `Mi pred: ${pred.golesA} - ${pred.golesB}`; break;
+          case 'finished':   statusLabel = 'Finalizado'; break;
+          case 'locked':     statusLabel = 'Sin predicción'; break;
+        }
+      }
+
+      if (estadoVisual === 'finished') {
+        resultHTML = `
+          <div class="match-result">
+            <span class="result-real">${partido.golesA} - ${partido.golesB}</span>
+            ${pred
+              ? `<span class="result-pred">Tu pred: ${pred.golesA}-${pred.golesB}</span>`
+              : '<span class="result-pred">Sin predicción</span>'
+            }
+          </div>`;
+      }
+
+      // Bandera — emoji directamente desde mapa
+      function flagHTML(flagUrl, nombre) {
+        const emoji = FLAG_EMOJIS[nombre] || '';
+        if (emoji) {
+          return `<div class="flag-emoji">${emoji}</div>`;
+        }
+        return `<div class="flag-fallback">${nombre !== 'TBD' ? nombre.slice(0,3).toUpperCase() : '?'}</div>`;
       }
 
       card.innerHTML = `
         ${hasComodin ? '<div class="comodin-star">⭐</div>' : ''}
         <div class="match-flags">
           <div class="flag-block">
-            <div class="flag-emoji">${partido.flagA || '🏳️'}</div>
+            ${flagHTML(partido.flagA, partido.equipoA)}
             <span class="flag-name">${partido.equipoA}</span>
           </div>
           <span class="match-vs">VS</span>
           <div class="flag-block">
-            <div class="flag-emoji">${partido.flagB || '🏳️'}</div>
+            ${flagHTML(partido.flagB, partido.equipoB)}
             <span class="flag-name">${partido.equipoB}</span>
           </div>
         </div>
         <div class="match-info">
-          <span class="match-datetime">${partido.fechaJuego} · ${partido.horaArg} hs</span>
+          <span class="match-datetime">${partido.fechaJuego || '??/??'} · ${partido.horaArg || '??:??'} hs</span>
           <span class="match-status-label">${statusLabel}</span>
         </div>
         ${resultHTML}
       `;
 
-      if (estadoVisual === 'pending') {
+      // Clicks
+      if (esAdmin) {
+        if (esTBD) {
+          // Admin en partido TBD: abrir selector de equipos inline
+          card.addEventListener('click', () => openEquiposModal(partido, faseId));
+          card.style.cursor = 'pointer';
+        } else if (estadoVisual !== 'finished') {
+          // Admin en partido definido sin resultado: abrir modal de resultado
+          card.addEventListener('click', () => openAdminResultModal(partido));
+          card.style.cursor = 'pointer';
+        }
+      } else if (estadoVisual === 'pending') {
         card.addEventListener('click', () => openPredModal(partido, faseId, comodinUsado));
       }
 
       return card;
     }
-
-    /* ═══════════════════════════════════════════════════
-       MODAL DE PREDICCIÓN
-    ═══════════════════════════════════════════════════ */
-    let scoreA = 0, scoreB = 0, comodinActive = false;
-    let currentPartido = null, currentFechaId = null;
-
-    const predOverlay   = document.getElementById('predModalOverlay');
-    const predClose     = document.getElementById('predModalClose');
-    const predConfirm   = document.getElementById('predConfirmBtn');
-    const comodinRow    = document.getElementById('comodinRow');
-    const comodinCheck  = document.getElementById('comodinCheck');
-    const comodinSub    = document.getElementById('comodinSubtext');
-    const scoreValA     = document.getElementById('scoreVal_a');
-    const scoreValB     = document.getElementById('scoreVal_b');
-
     function openPredModal(partido, faseId, comodinUsado) {
       currentPartido = partido;
       currentFaseId  = faseId;
@@ -1662,12 +1703,12 @@
 
       document.getElementById('predTeams').innerHTML = `
         <div class="pred-team">
-          <div style="font-size:3.5rem;line-height:1;">${partido.flagA || '🏳️'}</div>
+          <div class="pred-flag-emoji">${FLAG_EMOJIS[partido.equipoA] || '🏳️'}</div>
           <span class="pred-team-name">${partido.equipoA}</span>
         </div>
         <span class="pred-vs">VS</span>
         <div class="pred-team">
-          <div style="font-size:3.5rem;line-height:1;">${partido.flagB || '🏳️'}</div>
+          <div class="pred-flag-emoji">${FLAG_EMOJIS[partido.equipoB] || '🏳️'}</div>
           <span class="pred-team-name">${partido.equipoB}</span>
         </div>
       `;
@@ -2055,6 +2096,162 @@
         btn.disabled    = false;
         btn.textContent = 'GUARDAR';
       }
+    }
+
+    // ── MODAL EQUIPOS (admin — partidos TBD) ─────────────────
+    let currentTBDPartido = null;
+
+    function openEquiposModal(partido, faseId) {
+      currentTBDPartido = partido;
+
+      // Reusar el pred modal con contenido custom
+      document.getElementById('predModalTitle').textContent = 'DEFINIR EQUIPOS · ' + partido.id;
+
+      const teamsDiv = document.getElementById('predTeams');
+      teamsDiv.innerHTML = `
+        <div style="width:100%;display:flex;flex-direction:column;gap:1rem;">
+          <div style="display:flex;flex-direction:column;gap:.4rem;">
+            <label style="font-size:.75rem;font-weight:800;color:var(--celeste-mid);letter-spacing:.08em;text-transform:uppercase;">Equipo A</label>
+            <select class="admin-select" id="equipoA_modal" style="width:100%;font-size:1rem;padding:.7rem;">
+              <option value="">— Seleccioná el equipo —</option>
+              ${PAISES.map(p => `<option value="${p}">${(FLAG_EMOJIS[p]||'')} ${p}</option>`).join('')}
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.4rem;">
+            <label style="font-size:.75rem;font-weight:800;color:var(--celeste-mid);letter-spacing:.08em;text-transform:uppercase;">Equipo B</label>
+            <select class="admin-select" id="equipoB_modal" style="width:100%;font-size:1rem;padding:.7rem;">
+              <option value="">— Seleccioná el equipo —</option>
+              ${PAISES.map(p => `<option value="${p}">${(FLAG_EMOJIS[p]||'')} ${p}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      `;
+
+      // Ocultar scores y comodin, cambiar botón
+      document.querySelector('.pred-scores').style.display   = 'none';
+      document.getElementById('comodinRow').style.display    = 'none';
+      document.getElementById('adminPredNote').style.display = 'none';
+      predConfirm.textContent = 'GUARDAR EQUIPOS';
+      predConfirm.onclick = confirmarEquipos;
+
+      predOverlay.classList.add('active');
+    }
+
+    async function confirmarEquipos() {
+      const selA = document.getElementById('equipoA_modal');
+      const selB = document.getElementById('equipoB_modal');
+      const equipoA = selA ? selA.value : '';
+      const equipoB = selB ? selB.value : '';
+
+      if (!equipoA || !equipoB) {
+        alert('Seleccioná ambos equipos.');
+        return;
+      }
+      if (equipoA === equipoB) {
+        alert('Los equipos no pueden ser iguales.');
+        return;
+      }
+
+      predConfirm.disabled    = true;
+      predConfirm.textContent = 'GUARDANDO...';
+
+      try {
+        const res = await apiCall({
+          action: 'setEquipos', adminId: CURRENT_USER.id,
+          partidoId: currentTBDPartido.id, equipoA, equipoB,
+        });
+        if (res.ok) {
+          const p = PARTIDOS.find(x => x.id === currentTBDPartido.id);
+          if (p) { p.equipoA = equipoA; p.equipoB = equipoB; }
+          closePredModal();
+          buildFechas();
+          buildAdmin();
+        } else {
+          alert('Error: ' + res.error);
+        }
+      } catch(e) {
+        alert('Error de conexión: ' + e.message);
+      } finally {
+        predConfirm.disabled    = false;
+        predConfirm.textContent = 'CONFIRMAR PREDICCIÓN';
+        predConfirm.onclick     = null;
+      }
+    }
+
+    // ── MODAL RESULTADO ADMIN ──────────────────────────────
+    function openAdminResultModal(partido) {
+      currentPartido = partido;
+
+      document.getElementById('predModalTitle').textContent = 'CARGAR RESULTADO';
+
+      const emoji_a = FLAG_EMOJIS[partido.equipoA] || '';
+      const emoji_b = FLAG_EMOJIS[partido.equipoB] || '';
+
+      document.getElementById('predTeams').innerHTML = `
+        <div class="pred-team">
+          <div class="pred-flag-emoji">${emoji_a}</div>
+          <span class="pred-team-name">${partido.equipoA}</span>
+        </div>
+        <span class="pred-vs">VS</span>
+        <div class="pred-team">
+          <div class="pred-flag-emoji">${emoji_b}</div>
+          <span class="pred-team-name">${partido.equipoB}</span>
+        </div>
+      `;
+
+      scoreA = 0; scoreB = 0;
+      scoreValA.textContent = '0';
+      scoreValB.textContent = '0';
+      document.getElementById('scoreLabel_a').textContent = partido.equipoA.toUpperCase();
+      document.getElementById('scoreLabel_b').textContent = partido.equipoB.toUpperCase();
+
+      document.querySelector('.pred-scores').style.display   = '';
+      document.getElementById('comodinRow').style.display    = 'none';
+      document.getElementById('adminPredNote').style.display = 'block';
+      predConfirm.textContent = 'GUARDAR RESULTADO';
+      predConfirm.onclick = confirmarResultadoAdmin;
+
+      predOverlay.classList.add('active');
+    }
+
+    async function confirmarResultadoAdmin() {
+      if (!currentPartido) return;
+      predConfirm.disabled    = true;
+      predConfirm.textContent = 'GUARDANDO...';
+      try {
+        const res = await apiCalcularPuntajes(CURRENT_USER.id, currentPartido.id, scoreA, scoreB);
+        if (res.ok) {
+          const p = PARTIDOS.find(x => x.id === currentPartido.id);
+          if (p) { p.estado = 'finalizado'; p.golesA = scoreA; p.golesB = scoreB; }
+          closePredModal();
+          buildFechas();
+          buildAdmin();
+          const rp = await apiGetPuntajes();
+          if (rp.ok) { buildPodium(rp); buildMyScore(rp); }
+          openSuccessModal();
+        } else {
+          alert('Error: ' + res.error);
+        }
+      } catch(e) {
+        alert('Error de conexión: ' + e.message);
+      } finally {
+        predConfirm.disabled    = false;
+        predConfirm.textContent = 'CONFIRMAR PREDICCIÓN';
+        predConfirm.onclick     = null;
+      }
+    }
+
+    // Restaurar modal al cerrarlo
+    const _origClosePred = closePredModal;
+    function closePredModal() {
+      predOverlay.classList.remove('active');
+      currentPartido = null;
+      // Restaurar estado normal del modal
+      document.querySelector('.pred-scores').style.display   = '';
+      document.getElementById('comodinRow').style.display    = '';
+      document.getElementById('adminPredNote').style.display = 'none';
+      predConfirm.textContent = 'CONFIRMAR PREDICCIÓN';
+      predConfirm.onclick     = null;
     }
 
     // ── GUARDAR EQUIPOS EN PARTIDOS TBD (admin) ──────────────
