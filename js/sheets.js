@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzdusgeMF4geA_0bvg1uW0wMUsg9S7QSoWOWzKfrYXkOwMUrtfx0-LHusYvNOE7yU2xGw/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyYAIeKnTAy50Rvk1tgILbusFoVs5hUKtGVc-TOjLKOBn7B60-QZ-j0HemNQmh3pIu1zw/exec';
 
 async function sha256(text) {
   const encoder = new TextEncoder();
@@ -39,4 +39,13 @@ async function apiGetPuntajes() {
 
 async function apiCalcularPuntajes(adminId, partidoId, golesA, golesB) {
   return apiCall({ action: 'calcularPuntajes', adminId, partidoId, golesA: Number(golesA), golesB: Number(golesB) });
+}
+
+async function apiSetEquipos(adminId, partidoId, equipoA, equipoB) {
+  return apiCall({ action: 'setEquipos', adminId, partidoId, equipoA, equipoB });
+}
+
+// Trae la lista de equipos desde la pestaña "equipos" del Sheets
+async function apiGetEquipos() {
+  return apiCall({ action: 'getEquipos' });
 }
