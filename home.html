@@ -1672,8 +1672,8 @@
         block.className = 'fecha-block';
 
         const header = document.createElement('button');
-        header.className = 'fecha-header' + (fi === 0 ? ' open' : '');
-        header.setAttribute('aria-expanded', fi === 0 ? 'true' : 'false');
+        header.className = 'fecha-header';
+        header.setAttribute('aria-expanded', 'false');
         header.innerHTML = `
           <div class="fecha-header-left">
             <span class="fecha-label">${label}</span>
@@ -1686,7 +1686,7 @@
         `;
 
         const body = document.createElement('div');
-        body.className = 'fecha-body' + (fi === 0 ? ' open' : '');
+        body.className = 'fecha-body';
 
         const inner = document.createElement('div');
         inner.className = 'fecha-body-inner';
