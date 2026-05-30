@@ -1306,12 +1306,14 @@
     let PLAYERS_DATA   = [];
     let LOADING        = false;
 
-    // ── Referencias al modal de predicción ────────────────
+    // ── Referencias al modal de predicción + funciones (asignadas en DOMContentLoaded) ────────────────
     // (se inicializan en DOMContentLoaded para garantizar que el DOM está listo)
     let predOverlay, predClose, predConfirm, scoreValA, scoreValB, comodinRow, comodinCheck, comodinSub;
+    // Funciones del modal — asignadas en DOMContentLoaded para que sean accesibles globalmente
+    let closePredModal, openSuccessModal, closeSuccessModal;
 
-    // Lista de países para desplegable admin
-    const PAISES = ["Alemania","Arabia Saudita","Argelia","Argentina","Australia","Austria",
+    // Lista de equipos para desplegable admin (se carga dinámicamente desde el Sheets)
+    let PAISES = ["Alemania","Arabia Saudita","Argelia","Argentina","Australia","Austria",
       "Bosnia","Brasil","Bélgica","Cabo Verde","Canadá","Colombia","Corea del Sur",
       "Costa de Marfil","Croacia","Curazao","Ecuador","Egipto","Escocia","España",
       "Estados Unidos","Francia","Ghana","Haití","Inglaterra","Irán","Irak","Japón",
@@ -1387,6 +1389,88 @@
       comodinCheck = document.getElementById('comodinCheck');
       comodinSub   = document.getElementById('comodinSubtext');
 
+      // ── Funciones del modal (asignadas a variables globales) ─
+      closePredModal = function() {
+        predOverlay.classList.remove('active');
+        currentPartido = null;
+        // Restaurar estado original del modal
+        document.querySelector('.pred-scores').style.display   = '';
+        comodinRow.style.display    = '';
+        document.getElementById('adminPredNote').style.display = 'none';
+        predConfirm.textContent = 'CONFIRMAR PREDICCIÓN';
+        predConfirm.onclick     = null;
+      };
+
+      openSuccessModal = function() {
+        document.getElementById('successModalOverlay').classList.add('active');
+      };
+      closeSuccessModal = function() {
+        document.getElementById('successModalOverlay').classList.remove('active');
+      };
+
+      // ── Event listeners del modal de predicción ──────────
+      predClose.addEventListener('click', closePredModal);
+      predOverlay.addEventListener('click', e => { if (e.target === predOverlay) closePredModal(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') { closePredModal(); closeSuccessModal(); } });
+
+      // Botones +/-
+      document.getElementById('btnPlus_a').addEventListener('click',  () => { scoreA++; scoreValA.textContent = scoreA; });
+      document.getElementById('btnMinus_a').addEventListener('click', () => { if (scoreA > 0) { scoreA--; scoreValA.textContent = scoreA; } });
+      document.getElementById('btnPlus_b').addEventListener('click',  () => { scoreB++; scoreValB.textContent = scoreB; });
+      document.getElementById('btnMinus_b').addEventListener('click', () => { if (scoreB > 0) { scoreB--; scoreValB.textContent = scoreB; } });
+
+      // Toggle comodín
+      comodinRow.addEventListener('click', () => {
+        if (comodinRow.classList.contains('disabled')) return;
+        comodinActive = !comodinActive;
+        comodinCheck.classList.toggle('checked', comodinActive);
+      });
+
+      // Confirmar predicción (jugadores)
+      predConfirm.addEventListener('click', async () => {
+        // Si tiene onclick custom (admin), lo maneja onclick; no duplicar
+        if (predConfirm.onclick) return;
+        if (!currentPartido) return;
+
+        predConfirm.disabled    = true;
+        predConfirm.textContent = 'GUARDANDO...';
+        predConfirm.style.opacity = '0.7';
+
+        try {
+          const data = await apiSavePrediccion(
+            CURRENT_USER.id,
+            currentPartido.id,
+            scoreA, scoreB,
+            comodinActive
+          );
+
+          if (data.ok) {
+            PREDICCIONES[currentPartido.id] = { golesA: scoreA, golesB: scoreB, comodin: comodinActive };
+            if (comodinActive) COMODINES_USADOS.push(currentFaseId);
+            currentPartido.estado    = 'predicted';
+            currentPartido.bloqueado = true;
+            buildFechas();
+            closePredModal();
+            openSuccessModal();
+          } else {
+            alert('Error: ' + data.error);
+          }
+        } catch(err) {
+          alert('Error de conexión. Intentá de nuevo.');
+        } finally {
+          predConfirm.disabled    = false;
+          predConfirm.textContent = 'CONFIRMAR PREDICCIÓN';
+          predConfirm.style.opacity = '1';
+        }
+      });
+
+      // Event listeners del modal de éxito
+      document.getElementById('successClose').addEventListener('click', closeSuccessModal);
+      document.getElementById('successCloseBtn').addEventListener('click', closeSuccessModal);
+      document.getElementById('successModalOverlay').addEventListener('click', e => {
+        if (e.target === document.getElementById('successModalOverlay')) closeSuccessModal();
+      });
+
       CURRENT_USER = getSesion();
       if (!CURRENT_USER) {
         window.location.href = 'index.html';
@@ -1408,12 +1492,18 @@
       showLoader('myScoreWrap', 'Cargando puntaje...');
 
       try {
-        // Cargar datos en paralelo
-        const [resPartidos, resPreds, resPuntajes] = await Promise.all([
+        // Cargar datos en paralelo (incluyendo lista de equipos para admin)
+        const [resPartidos, resPreds, resPuntajes, resEquipos] = await Promise.all([
           apiGetPartidos(),
           apiGetPredicciones(CURRENT_USER.id),
           apiGetPuntajes(),
+          apiGetEquipos(),
         ]);
+
+        // Actualizar lista de equipos si viene del servidor
+        if (resEquipos && resEquipos.ok && resEquipos.equipos && resEquipos.equipos.length) {
+          PAISES = resEquipos.equipos;
+        }
 
         if (resPartidos.ok) {
           PARTIDOS = resPartidos.partidos;
@@ -1763,75 +1853,7 @@
       predOverlay.classList.add('active');
     }
 
-    function closePredModal() {
-      predOverlay.classList.remove('active');
-      currentPartido = null;
-    }
 
-    predClose.addEventListener('click', closePredModal);
-    predOverlay.addEventListener('click', e => { if (e.target === predOverlay) closePredModal(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closePredModal(); closeSuccessModal(); } });
-
-    // Botones +/-
-    document.getElementById('btnPlus_a').addEventListener('click',  () => { scoreA++; scoreValA.textContent = scoreA; });
-    document.getElementById('btnMinus_a').addEventListener('click', () => { if (scoreA > 0) { scoreA--; scoreValA.textContent = scoreA; } });
-    document.getElementById('btnPlus_b').addEventListener('click',  () => { scoreB++; scoreValB.textContent = scoreB; });
-    document.getElementById('btnMinus_b').addEventListener('click', () => { if (scoreB > 0) { scoreB--; scoreValB.textContent = scoreB; } });
-
-    // Toggle comodín
-    comodinRow.addEventListener('click', () => {
-      if (comodinRow.classList.contains('disabled')) return;
-      comodinActive = !comodinActive;
-      comodinCheck.classList.toggle('checked', comodinActive);
-    });
-
-    // Confirmar predicción
-    predConfirm.addEventListener('click', async () => {
-      if (!currentPartido) return;
-
-      predConfirm.disabled    = true;
-      predConfirm.textContent = 'GUARDANDO...';
-      predConfirm.style.opacity = '0.7';
-
-      try {
-        const data = await apiSavePrediccion(
-          CURRENT_USER.id,
-          currentPartido.id,
-          scoreA, scoreB,
-          comodinActive
-        );
-
-        if (data.ok) {
-          // Actualizar estado local
-          PREDICCIONES[currentPartido.id] = { golesA: scoreA, golesB: scoreB, comodin: comodinActive };
-          if (comodinActive) COMODINES_USADOS.push(currentFaseId);
-
-          currentPartido.estado   = 'predicted';
-          currentPartido.bloqueado = true;
-          buildFechas();
-          closePredModal();
-          openSuccessModal();
-        } else {
-          alert('Error: ' + data.error);
-        }
-      } catch(err) {
-        alert('Error de conexión. Intentá de nuevo.');
-      } finally {
-        predConfirm.disabled    = false;
-        predConfirm.textContent = 'CONFIRMAR PREDICCIÓN';
-        predConfirm.style.opacity = '1';
-      }
-    });
-
-    /* ── MODAL ÉXITO ── */
-    const successOverlay = document.getElementById('successModalOverlay');
-
-    function openSuccessModal() { successOverlay.classList.add('active'); }
-    function closeSuccessModal() { successOverlay.classList.remove('active'); }
-
-    document.getElementById('successClose').addEventListener('click', closeSuccessModal);
-    document.getElementById('successCloseBtn').addEventListener('click', closeSuccessModal);
-    successOverlay.addEventListener('click', e => { if (e.target === successOverlay) closeSuccessModal(); });
 
     /* ═══════════════════════════════════════════════════
        VISTA: PODIO
@@ -2143,14 +2165,14 @@
             <label style="font-size:.75rem;font-weight:800;color:var(--celeste-mid);letter-spacing:.08em;text-transform:uppercase;">Equipo A</label>
             <select class="admin-select" id="equipoA_modal" style="width:100%;font-size:1rem;padding:.7rem;">
               <option value="">— Seleccioná el equipo —</option>
-              ${PAISES.map(p => `<option value="${p}">${(FLAG_EMOJIS[p]||'')} ${p}</option>`).join('')}
+              ${PAISES.map(p => `<option value="${p}">${p}</option>`).join('')}
             </select>
           </div>
           <div style="display:flex;flex-direction:column;gap:.4rem;">
             <label style="font-size:.75rem;font-weight:800;color:var(--celeste-mid);letter-spacing:.08em;text-transform:uppercase;">Equipo B</label>
             <select class="admin-select" id="equipoB_modal" style="width:100%;font-size:1rem;padding:.7rem;">
               <option value="">— Seleccioná el equipo —</option>
-              ${PAISES.map(p => `<option value="${p}">${(FLAG_EMOJIS[p]||'')} ${p}</option>`).join('')}
+              ${PAISES.map(p => `<option value="${p}">${p}</option>`).join('')}
             </select>
           </div>
         </div>
@@ -2269,18 +2291,7 @@
       }
     }
 
-    // Restaurar modal al cerrarlo
-    const _origClosePred = closePredModal;
-    function closePredModal() {
-      predOverlay.classList.remove('active');
-      currentPartido = null;
-      // Restaurar estado normal del modal
-      document.querySelector('.pred-scores').style.display   = '';
-      document.getElementById('comodinRow').style.display    = '';
-      document.getElementById('adminPredNote').style.display = 'none';
-      predConfirm.textContent = 'CONFIRMAR PREDICCIÓN';
-      predConfirm.onclick     = null;
-    }
+
 
     // ── GUARDAR EQUIPOS EN PARTIDOS TBD (admin) ──────────────
     async function guardarEquipos(partidoId) {
