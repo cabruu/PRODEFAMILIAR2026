@@ -309,6 +309,16 @@
       background: rgba(255,255,255,0.05);
     }
 
+    .pred-flag-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(116,172,223,0.3);
+      display: block;
+      margin: 0 auto 0.3rem;
+    }
+
     .pred-flag-emoji {
       width: 64px; height: 64px;
       border-radius: 50%;
@@ -319,10 +329,11 @@
     }
 
     .flag-img {
-      width: 36px; height: 36px;
+      width: 48px; height: 48px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid rgba(255,255,255,0.15);
+      border: 2px solid rgba(116,172,223,0.25);
+      display: block;
     }
 
     .flag-fallback {
@@ -1295,6 +1306,10 @@
     let PLAYERS_DATA   = [];
     let LOADING        = false;
 
+    // ── Referencias al modal de predicción ────────────────
+    // (se inicializan en DOMContentLoaded para garantizar que el DOM está listo)
+    let predOverlay, predClose, predConfirm, scoreValA, scoreValB, comodinRow, comodinCheck, comodinSub;
+
     // Lista de países para desplegable admin
     const PAISES = ["Alemania","Arabia Saudita","Argelia","Argentina","Australia","Austria",
       "Bosnia","Brasil","Bélgica","Cabo Verde","Canadá","Colombia","Corea del Sur",
@@ -1362,6 +1377,16 @@
     ═══════════════════════════════════════════════════ */
     window.addEventListener('DOMContentLoaded', async () => {
       // Verificar sesión
+      // Inicializar referencias al modal
+      predOverlay  = document.getElementById('predModalOverlay');
+      predClose    = document.getElementById('predModalClose');
+      predConfirm  = document.getElementById('predConfirmBtn');
+      scoreValA    = document.getElementById('scoreVal_a');
+      scoreValB    = document.getElementById('scoreVal_b');
+      comodinRow   = document.getElementById('comodinRow');
+      comodinCheck = document.getElementById('comodinCheck');
+      comodinSub   = document.getElementById('comodinSubtext');
+
       CURRENT_USER = getSesion();
       if (!CURRENT_USER) {
         window.location.href = 'index.html';
@@ -1643,13 +1668,15 @@
           </div>`;
       }
 
-      // Bandera — emoji directamente desde mapa
+      // Bandera — imagen local desde carpeta flags/
       function flagHTML(flagUrl, nombre) {
-        const emoji = FLAG_EMOJIS[nombre] || '';
-        if (emoji) {
-          return `<div class="flag-emoji">${emoji}</div>`;
+        if (nombre && nombre !== 'TBD') {
+          const src = `flags/${encodeURIComponent(nombre)}.png`;
+          return `<img class="flag-img" src="${src}" alt="${nombre}"
+                       onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                  <div class="flag-fallback" style="display:none">${nombre.slice(0,3).toUpperCase()}</div>`;
         }
-        return `<div class="flag-fallback">${nombre !== 'TBD' ? nombre.slice(0,3).toUpperCase() : '?'}</div>`;
+        return `<div class="flag-fallback">?</div>`;
       }
 
       card.innerHTML = `
@@ -1703,12 +1730,14 @@
 
       document.getElementById('predTeams').innerHTML = `
         <div class="pred-team">
-          <div class="pred-flag-emoji">${FLAG_EMOJIS[partido.equipoA] || '🏳️'}</div>
+          <img class="pred-flag-img" src="flags/${encodeURIComponent(partido.equipoA)}.png" alt="${partido.equipoA}"
+               onerror="this.style.display='none'">
           <span class="pred-team-name">${partido.equipoA}</span>
         </div>
         <span class="pred-vs">VS</span>
         <div class="pred-team">
-          <div class="pred-flag-emoji">${FLAG_EMOJIS[partido.equipoB] || '🏳️'}</div>
+          <img class="pred-flag-img" src="flags/${encodeURIComponent(partido.equipoB)}.png" alt="${partido.equipoB}"
+               onerror="this.style.display='none'">
           <span class="pred-team-name">${partido.equipoB}</span>
         </div>
       `;
@@ -2184,17 +2213,16 @@
 
       document.getElementById('predModalTitle').textContent = 'CARGAR RESULTADO';
 
-      const emoji_a = FLAG_EMOJIS[partido.equipoA] || '';
-      const emoji_b = FLAG_EMOJIS[partido.equipoB] || '';
-
       document.getElementById('predTeams').innerHTML = `
         <div class="pred-team">
-          <div class="pred-flag-emoji">${emoji_a}</div>
+          <img class="pred-flag-img" src="flags/${encodeURIComponent(partido.equipoA)}.png" alt="${partido.equipoA}"
+               onerror="this.style.display='none'">
           <span class="pred-team-name">${partido.equipoA}</span>
         </div>
         <span class="pred-vs">VS</span>
         <div class="pred-team">
-          <div class="pred-flag-emoji">${emoji_b}</div>
+          <img class="pred-flag-img" src="flags/${encodeURIComponent(partido.equipoB)}.png" alt="${partido.equipoB}"
+               onerror="this.style.display='none'">
           <span class="pred-team-name">${partido.equipoB}</span>
         </div>
       `;
