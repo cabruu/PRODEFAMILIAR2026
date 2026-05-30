@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d2137">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Prode Familiar">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PRODE FAMILIAR 2026</title>
@@ -654,33 +663,12 @@
     const togglePass = document.getElementById('togglePass');
 
     function openModal(player) {
-      // Jugadores y mascotas entran directo sin contraseña
-      if (!player.admin) {
-        loginBtn.disabled    = true;
-        loginBtn.textContent = 'ENTRANDO...';
-        apiLogin(player.id, null)
-          .then(data => {
-            if (data.ok) {
-              guardarSesion(data.user);
-              window.location.href = 'home.html';
-            } else {
-              alert('Error al iniciar sesión. Intentá de nuevo.');
-            }
-          })
-          .catch(() => alert('Error de conexión. Verificá tu internet.'))
-          .finally(() => {
-            loginBtn.disabled    = false;
-            loginBtn.textContent = 'ENTRAR';
-          });
-        return;
-      }
-
-      // Solo el admin ve el modal de contraseña
       selectedPlayer = player;
       modalName.textContent = player.name;
       passInput.value = '';
       modalError.textContent = '';
 
+      // Avatar en modal
       avatarWrap.innerHTML = `
         <img
           class="modal-avatar"
@@ -772,6 +760,13 @@
       setTimeout(() => { passInput.style.borderColor = ''; }, 1500);
     }
 
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
   </script>
 </body>
 </html>
