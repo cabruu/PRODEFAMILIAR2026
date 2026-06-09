@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBGkFYZYMOCKreIueGIlIsHKDn3DE2PC45Yj-RLBekRnfecxgYl2FwRHivyQKEX-54/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdrtRYvQM1t3a5hCWy5f5gJCAHFAFeyQXZ8uWYlMNAFu3Ci3ejxiuPow38WdX3Vb3t/exec';
 
 async function sha256(text) {
   const encoder = new TextEncoder();
