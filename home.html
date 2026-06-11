@@ -263,10 +263,12 @@
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       padding: 0.5rem;
+      width: 100%;
     }
     .tabla-general {
       border-collapse: collapse;
-      min-width: 100%;
+      width: 100%;
+      min-width: max-content;
       font-size: 0.78rem;
     }
     .tabla-general th, .tabla-general td {
@@ -1997,8 +1999,9 @@
       // Agrupar partidos por fase
       const fases = {};
       partidos.forEach(p => {
-        if (!fases[p.fase]) fases[p.fase] = [];
-        fases[p.fase].push(p);
+        const key = p.fechaId || 'Sin fase';
+        if (!fases[key]) fases[key] = [];
+        fases[key].push(p);
       });
 
       // Determinar si una predicción fue exacta / ganador / fallo
@@ -2030,7 +2033,18 @@
       // Filas por fase y partido
       Object.entries(fases).forEach(([fase, ps]) => {
         // Fila separadora de fase
-        html += `<tr><td colspan="${orden.length + 1}" style="background:rgba(116,172,223,0.1);color:var(--celeste-mid);font-weight:800;font-size:0.7rem;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:.4rem .65rem;">${fase}</td></tr>`;
+        const faseLabel = {
+          FECHA1:  'Fecha 1 — Fase de Grupos',
+          FECHA2:  'Fecha 2 — Fase de Grupos',
+          FECHA3:  'Fecha 3 — Fase de Grupos',
+          '16AVOS': '16avos de Final',
+          OCTAVOS: 'Octavos de Final',
+          CUARTOS: 'Cuartos de Final',
+          SEMIS:   'Semifinales',
+          TERCERO: 'Tercer Puesto',
+          FINAL:   'Final',
+        }[fase] || fase;
+        html += `<tr><td colspan="${orden.length + 1}" style="background:rgba(116,172,223,0.1);color:var(--celeste-mid);font-weight:800;font-size:0.7rem;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:.4rem .65rem;">${faseLabel}</td></tr>`;
 
         ps.forEach(partido => {
           const resultado = partido.estado === 'finalizado'
