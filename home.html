@@ -1970,13 +1970,20 @@
     let tablaLoaded = false;
 
     async function buildTablaGeneral() {
-      if (tablaLoaded) return; // ya cargada, no repetir fetch
+      if (tablaLoaded) return;
       const wrap = document.getElementById('tablaContainer');
       wrap.innerHTML = '<p style="color:var(--celeste-mid);text-align:center;padding:2rem;">Cargando tabla...</p>';
 
-      const res = await apiGetTablaGeneral();
+      let res;
+      try {
+        res = await apiGetTablaGeneral();
+      } catch(err) {
+        wrap.innerHTML = `<p style="color:#f87;text-align:center;padding:2rem;">Error de conexión: ${err.message}</p>`;
+        return;
+      }
+
       if (!res || !res.ok) {
-        wrap.innerHTML = '<p style="color:#f87;text-align:center;padding:2rem;">Error al cargar la tabla.</p>';
+        wrap.innerHTML = `<p style="color:#f87;text-align:center;padding:2rem;">Error del servidor: ${res ? res.error : 'sin respuesta'}</p>`;
         return;
       }
 
