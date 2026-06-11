@@ -259,6 +259,9 @@
     .fecha-body-inner { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; }
 
     /* ── TABLA GENERAL ── */
+    body:has(#viewTabla.active) .page {
+      max-width: 1400px;
+    }
     .tabla-wrap {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
