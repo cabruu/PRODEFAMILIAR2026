@@ -49,3 +49,8 @@ async function apiSetEquipos(adminId, partidoId, equipoA, equipoB) {
 async function apiGetEquipos() {
   return apiCall({ action: 'getEquipos' });
 }
+
+// Trae todos los partidos + predicciones de todos los jugadores para la tabla general
+async function apiGetTablaGeneral() {
+  return apiCall({ action: 'getTablaGeneral' });
+}
