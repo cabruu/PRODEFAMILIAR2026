@@ -258,6 +258,59 @@
 
     .fecha-body-inner { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; }
 
+    /* ── TABLA GENERAL ── */
+    .tabla-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0.5rem;
+    }
+    .tabla-general {
+      border-collapse: collapse;
+      min-width: 100%;
+      font-size: 0.78rem;
+    }
+    .tabla-general th, .tabla-general td {
+      padding: 0.5rem 0.65rem;
+      text-align: center;
+      border: 1px solid rgba(116,172,223,0.15);
+      white-space: nowrap;
+    }
+    .tabla-general thead th {
+      background: rgba(13,33,55,0.9);
+      color: var(--celeste-mid);
+      font-weight: 800;
+      letter-spacing: .05em;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .tabla-general thead th:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background: rgba(13,33,55,0.95);
+    }
+    .tabla-general tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+    .tabla-general tbody tr:hover           { background: rgba(116,172,223,0.07); }
+    .tabla-general td:first-child {
+      text-align: left;
+      position: sticky;
+      left: 0;
+      background: rgba(13,33,55,0.92);
+      z-index: 1;
+      font-weight: 700;
+    }
+    .tabla-partido-label { color: #fff; font-weight: 700; font-size: 0.8rem; }
+    .tabla-resultado     { color: var(--oro); font-weight: 800; font-size: 0.85rem; }
+    .tabla-pred-exacto   { color: #4cdf7a; font-weight: 800; }
+    .tabla-pred-ganador  { color: #f0c040; font-weight: 700; }
+    .tabla-pred-fallo    { color: rgba(255,255,255,0.35); }
+    .tabla-pred-sin      { color: rgba(255,255,255,0.2); font-style: italic; }
+    .tabla-jugador-header { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .tabla-jugador-foto   { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+
     /* ── CARDS DE PARTIDO ── */
     .match-card {
       display: flex; align-items: center;
@@ -1155,6 +1208,10 @@
     <button class="menu-item" id="menuScore" data-view="mipuntaje">
       <span class="menu-icon">📊</span> Mi puntaje
     </button>
+    <button class="menu-item" id="menuTabla" data-view="tabla">
+        <span class="menu-icon">📋</span>
+        <span>Tabla General</span>
+      </button>
     <button class="menu-item" id="menuReglas" data-view="reglas">
       <span class="menu-icon">📋</span> Reglas
     </button>
@@ -1179,6 +1236,10 @@
     </div>
 
     <!-- VISTA: PODIO -->
+    <div class="view" id="viewTabla">
+      <div id="tablaContainer"></div>
+    </div>
+
     <div class="view" id="viewPodio">
       <h2 class="section-title">🏆 <span>Podio</span></h2>
       <div class="podium-wrap" id="podiumWrap">
@@ -1206,11 +1267,11 @@
       <div class="rules-block">
         <p class="rules-block-title">🌟 El Comodín</p>
         <ul>
-          <li>Cada jugador tiene <strong>un comodín por Fecha/Instancia</strong> (Fecha 1, Fecha 2, Fecha 3, Octavos, Cuartos, Semi y Final).</li>
+          <li>Cada jugador tiene <strong>un comodín por Fecha/Instancia</strong> (Fecha 1, Fecha 2, Fecha 3, 16avos, Octavos, Cuartos, Semi y Final).</li>
           <li>El comodín se aplica a un partido específico dentro de esa instancia.</li>
           <li>Si usás el comodín, el puntaje que obtengas en ese partido se <strong>duplica</strong>.</li>
           <li>Si usaste el comodín pero no acertaste nada, no sumás puntos extra.</li>
-          <li>¡IMPORTANTE! Una vez enviado, no puede cambiarse.</li>
+          <li>¡Usalo con inteligencia! Una vez enviado, no puede cambiarse.</li>
         </ul>
       </div>
 
@@ -1236,7 +1297,7 @@
 
       <div class="rules-block">
         <p class="rules-block-title">🐾 Mascotas</p>
-        <p>Felipe, Mara y Felix también participan. Sus predicciones pueden ser cargadas por cualquier miembro de la familia (o por una IA 🤖)</p>
+        <p>Felipe, Mara y Félix también participan. Sus predicciones pueden ser cargadas por cualquier miembro de la familia (o por una IA 🤖).</p>
       </div>
     </div>
 
@@ -1299,7 +1360,7 @@
       <button class="pred-modal-close" id="successClose">&times;</button>
       <span class="success-icon">🎉</span>
       <p class="success-title">¡PREDICCIÓN REALIZADA!</p>
-      <p class="success-sub">Tu predicción fue guardada correctamente</p>
+      <p class="success-sub">Tu predicción fue guardada correctamente.</p>
       <button class="success-close-btn" id="successCloseBtn">CONTINUAR</button>
     </div>
   </div>
@@ -1616,6 +1677,7 @@
     // Navegación por menú
     const views = {
       inicio:    document.getElementById('viewInicio'),
+      tabla:     document.getElementById('viewTabla'),
       podio:     document.getElementById('viewPodio'),
       mipuntaje: document.getElementById('viewMiPuntaje'),
       reglas:    document.getElementById('viewReglas'),
@@ -1637,6 +1699,7 @@
           el.classList.toggle('active', key === target);
         });
         document.querySelectorAll('.menu-item[data-view]').forEach(b => b.classList.remove('active'));
+        if (view === 'tabla') buildTablaGeneral();
         btn.classList.add('active');
         sideMenu.classList.remove('open');
         hamburger.classList.remove('open');
@@ -1901,6 +1964,95 @@
     /* ═══════════════════════════════════════════════════
        VISTA: PODIO
     ═══════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════
+       VISTA: TABLA GENERAL
+    ═══════════════════════════════════════════════════ */
+    let tablaLoaded = false;
+
+    async function buildTablaGeneral() {
+      if (tablaLoaded) return; // ya cargada, no repetir fetch
+      const wrap = document.getElementById('tablaContainer');
+      wrap.innerHTML = '<p style="color:var(--celeste-mid);text-align:center;padding:2rem;">Cargando tabla...</p>';
+
+      const res = await apiGetTablaGeneral();
+      if (!res || !res.ok) {
+        wrap.innerHTML = '<p style="color:#f87;text-align:center;padding:2rem;">Error al cargar la tabla.</p>';
+        return;
+      }
+
+      const { jugadores, partidos, predMap } = res;
+
+      // Separar humanos y mascotas
+      const humanos  = jugadores.filter(j => !j.esMascota);
+      const mascotas = jugadores.filter(j =>  j.esMascota);
+      const orden    = [...humanos, ...mascotas];
+
+      // Agrupar partidos por fase
+      const fases = {};
+      partidos.forEach(p => {
+        if (!fases[p.fase]) fases[p.fase] = [];
+        fases[p.fase].push(p);
+      });
+
+      // Determinar si una predicción fue exacta / ganador / fallo
+      function clasePred(pred, partido) {
+        if (!pred) return 'tabla-pred-sin';
+        if (partido.estado !== 'finalizado') return '';
+        const gA = partido.golesA, gB = partido.golesB;
+        if (pred.golesA === gA && pred.golesB === gB) return 'tabla-pred-exacto';
+        const ganReal = gA > gB ? 'A' : gB > gA ? 'B' : 'EMPATE';
+        const ganPred = pred.golesA > pred.golesB ? 'A' : pred.golesB > pred.golesA ? 'B' : 'EMPATE';
+        return ganReal === ganPred ? 'tabla-pred-ganador' : 'tabla-pred-fallo';
+      }
+
+      let html = '<div class="tabla-wrap"><table class="tabla-general"><thead>';
+
+      // Header: columna partido + una columna por jugador
+      html += '<tr><th>Partido</th>';
+      orden.forEach(j => {
+        html += `<th>
+          <div class="tabla-jugador-header">
+            <img class="tabla-jugador-foto" src="${j.foto}" alt="${j.nombre}"
+                 onerror="this.style.display='none'">
+            <span>${j.nombre.split(' ')[0]}</span>
+          </div>
+        </th>`;
+      });
+      html += '</tr></thead><tbody>';
+
+      // Filas por fase y partido
+      Object.entries(fases).forEach(([fase, ps]) => {
+        // Fila separadora de fase
+        html += `<tr><td colspan="${orden.length + 1}" style="background:rgba(116,172,223,0.1);color:var(--celeste-mid);font-weight:800;font-size:0.7rem;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:.4rem .65rem;">${fase}</td></tr>`;
+
+        ps.forEach(partido => {
+          const resultado = partido.estado === 'finalizado'
+            ? `<span class="tabla-resultado">${partido.golesA} - ${partido.golesB}</span>`
+            : '<span style="color:rgba(255,255,255,0.3)">- vs -</span>';
+
+          html += `<tr>
+            <td>
+              <div class="tabla-partido-label">${partido.equipoA} vs ${partido.equipoB}</div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:2px;">Resultado: ${resultado}</div>
+            </td>`;
+
+          orden.forEach(j => {
+            const key  = `${partido.id}__${j.id}`;
+            const pred = predMap[key];
+            const cls  = clasePred(pred, partido);
+            const txt  = pred ? `${pred.golesA} - ${pred.golesB}` : '—';
+            html += `<td class="${cls}">${txt}</td>`;
+          });
+
+          html += '</tr>';
+        });
+      });
+
+      html += '</tbody></table></div>';
+      wrap.innerHTML = html;
+      tablaLoaded = true;
+    }
+
     function buildPodium(resPuntajes) {
       const wrap = document.getElementById('podiumWrap');
 
