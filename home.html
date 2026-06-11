@@ -1272,7 +1272,7 @@
       <div class="rules-block">
         <p class="rules-block-title">🌟 El Comodín</p>
         <ul>
-          <li>Cada jugador tiene <strong>un comodín por Fecha/Instancia</strong> (Fecha 1, Fecha 2, Fecha 3, 16avos, Octavos, Cuartos, Semi y Final).</li>
+          <li>Cada jugador tiene <strong>un comodín por Fecha/Instancia</strong> (Fecha 1, Fecha 2, Fecha 3, Octavos, 16avos, Cuartos, Semi y Final).</li>
           <li>El comodín se aplica a un partido específico dentro de esa instancia.</li>
           <li>Si usás el comodín, el puntaje que obtengas en ese partido se <strong>duplica</strong>.</li>
           <li>Si usaste el comodín pero no acertaste nada, no sumás puntos extra.</li>
@@ -1365,7 +1365,7 @@
       <button class="pred-modal-close" id="successClose">&times;</button>
       <span class="success-icon">🎉</span>
       <p class="success-title">¡PREDICCIÓN REALIZADA!</p>
-      <p class="success-sub">Tu predicción fue guardada correctamente.</p>
+      <p class="success-sub">Tu predicción fue guardada correctamente</p>
       <button class="success-close-btn" id="successCloseBtn">CONTINUAR</button>
     </div>
   </div>
@@ -2064,7 +2064,8 @@
             const key  = `${partido.id}__${j.id}`;
             const pred = predMap[key];
             const cls  = clasePred(pred, partido);
-            const txt  = pred ? `${pred.golesA} - ${pred.golesB}` : '—';
+            const star = pred && pred.comodin ? ' <span title="Comodín" style="color:var(--oro);font-size:0.75rem;">⭐</span>' : '';
+            const txt  = pred ? `${pred.golesA} - ${pred.golesB}${star}` : '—';
             html += `<td class="${cls}">${txt}</td>`;
           });
 
